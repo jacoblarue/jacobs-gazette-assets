@@ -20,8 +20,8 @@ Run these in order:
 git clone https://github.com/jacoblarue/jacobs-gazette-assets.git /tmp/jg
 cd /tmp/jg
 
-# 2. Clone the private repo (latest pentest report)
-git clone "https://x-access-token:${GITHUB_PAT}@github.com/jacoblarue/jacobs-gazette-private.git" /tmp/jg-private
+# 2. Clone the data repo (latest pentest report) — also public
+git clone https://github.com/jacoblarue/jacobs-gazette-private.git /tmp/jg-private
 
 # 3. Install Python deps
 pip install --quiet python-docx pillow requests
@@ -30,7 +30,7 @@ pip install --quiet python-docx pillow requests
 mkdir -p /tmp/jg/output
 ```
 
-The env var `GITHUB_PAT` must be set in the routine config. Alpaca keys come in as `ALPACA_KEY_ID` and `ALPACA_SECRET_KEY`.
+Credentials are passed in the routine prompt's leading **CREDENTIALS** block (see top of routine prompt). Read them as Python variables.
 
 ## Step 2 — Determine the issue label
 
@@ -194,23 +194,40 @@ Re-render and re-verify.
 
 > Note: `libreoffice`/`soffice` and `pdftoppm` may not be installed in the cloud sandbox. If conversion isn't available, trust the page count empirically — the prototype with full content lands at 11 pages. Only re-trim if visibly bloated.
 
-## Step 6 — Send the email
+## Step 6 — Send the email (Gmail SMTP)
 
-Use the Gmail connector. Email format:
+Use Python `smtplib` with the SMTP credentials from the routine prompt's CREDENTIALS block:
 
-- **To**: jacoblarue7@gmail.com
-- **Subject**: `Weekly Brief — Week of <issue_date>`
-- **Body** (plain text):
-  ```
-  Good morning, Jacob —
+```python
+import smtplib, ssl
+from email.message import EmailMessage
+from pathlib import Path
 
-  This week's Jacob's Gazette is attached. <One-line teaser based on the most interesting thing in this issue.>
+msg = EmailMessage()
+msg["From"] = SMTP_USER
+msg["To"] = "jacoblarue7@gmail.com"
+msg["Subject"] = f"Weekly Brief — {issue_label}"
+msg.set_content(
+    f"Good morning, Jacob —\n\n"
+    f"This week's Jacob's Gazette is attached. {one_line_teaser}\n\n"
+    f"— The Gazette Bot\n"
+)
 
-  — The Gazette Bot
-  ```
-- **Attachment**: `/tmp/jg/output/newsletter.docx`
+attachment = Path("/tmp/jg/output/newsletter.docx").read_bytes()
+msg.add_attachment(
+    attachment,
+    maintype="application",
+    subtype="vnd.openxmlformats-officedocument.wordprocessingml.document",
+    filename=f"jacobs-gazette-{issue_date_slug}.docx",
+)
 
-If the Gmail connector requires a different invocation pattern, use whatever shape it expects. The .docx file at the path above is the canonical artifact.
+ctx = ssl.create_default_context()
+with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=ctx) as s:
+    s.login(SMTP_USER, SMTP_PASSWORD)
+    s.send_message(msg)
+```
+
+The `one_line_teaser` should reference the most interesting thing in this issue — pick from the new pentest findings, a notable CVE, a ranked CFB matchup, or a cheap flight deal. Keep it under 100 chars.
 
 ## Step 7 — Cleanup
 
