@@ -1,0 +1,20 @@
+{
+  "seed": 42,
+  "words": [
+    {"word": "STRAVA", "clue": "Activity tracking app for runners"},
+    {"word": "GAZETTE", "clue": "Newspaper, often local in scope"},
+    {"word": "TACOMA", "clue": "Toyota midsize pickup"},
+    {"word": "TENNESSEE", "clue": "Volunteer state"},
+    {"word": "DEFCON", "clue": "Annual hacker conference in Vegas"},
+    {"word": "OPENING", "clue": "Chess phase before the middlegame"},
+    {"word": "SQUAT", "clue": "CrossFit movement, hip below knee"},
+    {"word": "VOLUNTEER", "clue": "UT Knoxville mascot"},
+    {"word": "CIPHER", "clue": "Method of disguising plaintext"},
+    {"word": "ALPACA", "clue": "Trading platform with paper accounts"},
+    {"word": "PORTAL", "clue": "Where college athletes transfer through"},
+    {"word": "VERSE", "clue": "Bible passage unit"},
+    {"word": "JAMMER", "clue": "EW device that disrupts signals"},
+    {"word": "RECIPE", "clue": "Set of cooking instructions"},
+    {"word": "HACKER", "clue": "Curious problem-solver in tech"}
+  ]
+}

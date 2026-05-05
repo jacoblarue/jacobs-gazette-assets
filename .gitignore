@@ -1,0 +1,23 @@
+# Build artifacts
+output/
+*.pdf
+*.b64
+__pycache__/
+*.pyc
+*.pyo
+
+# Private data — tracked by the private repo, not this one
+pentest/
+private/
+
+# Local-only
+*.log
+*.tmp
+.env
+*.env
+
+# Editor
+.vscode/
+.idea/
+*.swp
+STATUS.md
