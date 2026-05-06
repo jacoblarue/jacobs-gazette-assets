@@ -125,8 +125,8 @@ def _section_heading(doc: Document, title: str, kicker: str | None = None) -> No
 
 def _body_paragraph(doc: Document, text: str, *, italic=False, size=12) -> None:
     p = doc.add_paragraph()
-    p.paragraph_format.space_after = Pt(6)
-    p.paragraph_format.line_spacing = 1.15
+    p.paragraph_format.space_after = Pt(3)
+    p.paragraph_format.line_spacing = 1.05
     _styled_run(p, text, size=size, color=BODY_GRAY, italic=italic)
 
 
@@ -166,7 +166,8 @@ def _maybe_image(doc: Document, image_path: str | None, *, width_in: float = 4.5
 
 def _source_line(doc: Document, source_text: str, source_url: str | None = None) -> None:
     p = doc.add_paragraph()
-    p.paragraph_format.space_after = Pt(4)
+    p.paragraph_format.space_after = Pt(2)
+    p.paragraph_format.space_before = Pt(0)
     _styled_run(p, "Source: ", italic=True, size=10, color=MUTED_GRAY)
     if source_url:
         _add_hyperlink(p, source_url, source_text, size=10, color=NAVY, italic=True)
@@ -447,9 +448,9 @@ def render_crossword(doc: Document, section: dict) -> None:
         if ip.exists():
             pp = doc.add_paragraph()
             pp.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            pp.paragraph_format.space_before = Pt(4)
-            pp.paragraph_format.space_after = Pt(6)
-            pp.add_run().add_picture(str(ip), width=Inches(4.5))
+            pp.paragraph_format.space_before = Pt(2)
+            pp.paragraph_format.space_after = Pt(4)
+            pp.add_run().add_picture(str(ip), width=Inches(3.6))
 
     table = doc.add_table(rows=1, cols=2)
     left, right = table.rows[0].cells
@@ -501,6 +502,10 @@ def render_vehicle_listings(doc: Document, section: dict) -> None:
             _add_hyperlink(sp, item["url"], item.get("source", "Listing"), size=11, color=NAVY)
         else:
             _styled_run(sp, item.get("source", "—"), size=11)
+    if section.get("market_note"):
+        np = doc.add_paragraph()
+        np.paragraph_format.space_before = Pt(8)
+        _styled_run(np, section["market_note"], italic=True, size=10, color=MUTED_GRAY)
 
 
 def render_concert_airbnb(doc: Document, section: dict) -> None:
@@ -544,6 +549,10 @@ def render_concert_airbnb(doc: Document, section: dict) -> None:
                 _styled_run(lp, " — " + " • ".join(detail), size=10, color=MUTED_GRAY)
     else:
         _body_paragraph(doc, "No Airbnb matches found for the criteria.", italic=True)
+    if section.get("notes"):
+        np = doc.add_paragraph()
+        np.paragraph_format.space_before = Pt(6)
+        _styled_run(np, section["notes"], italic=True, size=10, color=MUTED_GRAY)
 
 
 def render_alpaca_summary(doc: Document, section: dict) -> None:
@@ -745,6 +754,26 @@ def _set_margins(doc: Document) -> None:
         section.footer_distance = Inches(0.3)
 
 
+def _set_page_borders(doc: Document, color_hex: str = "0A1F3D", sz: int = 18) -> None:
+    """Add a uniform border around every page. sz is in eighths of a point
+    (18 ≈ 2.25pt). offsetFrom='page' anchors the border to the page edge."""
+    for section in doc.sections:
+        sect_pr = section._sectPr
+        # Remove any existing pgBorders so this is the source of truth
+        for existing in sect_pr.findall(qn("w:pgBorders")):
+            sect_pr.remove(existing)
+        pg_borders = OxmlElement("w:pgBorders")
+        pg_borders.set(qn("w:offsetFrom"), "page")
+        for side in ("top", "left", "bottom", "right"):
+            bd = OxmlElement(f"w:{side}")
+            bd.set(qn("w:val"), "single")
+            bd.set(qn("w:sz"), str(sz))
+            bd.set(qn("w:space"), "24")
+            bd.set(qn("w:color"), color_hex)
+            pg_borders.append(bd)
+        sect_pr.append(pg_borders)
+
+
 # ---------- Main ----------
 
 
@@ -775,6 +804,7 @@ def build_newsletter(content: dict, output_path: Path) -> None:
     style.font.color.rgb = BODY_GRAY
 
     _set_margins(doc)
+    _set_page_borders(doc)
     _build_header(doc, content.get("issue_label", ""))
     _build_footer(doc)
 

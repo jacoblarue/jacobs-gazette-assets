@@ -13,7 +13,10 @@
       "paragraphs": [
         "The Association of Old Crows (AOC) released its quarterly threat outlook this week, with continued emphasis on adaptive jamming techniques observed across contested regions in Eastern Europe and the Indo-Pacific. Cognitive EW — systems that learn and counter signal environments in real time — remains the dominant industry investment area, with multiple primes announcing new SDR-based platforms targeting fielded delivery within 24 months.",
         "On the policy side, the FY26 NDAA markup includes expanded funding for EW range modernization and a new line item for spectrum-sharing trials between DoD and commercial 5G operators. Watch for committee hearings later this month — the appropriations sub-committee is pushing back on the 5G coexistence language, citing concerns about active jamming exercises in proximity to commercial bands.",
-        "On the contracts front: a new Tactical EW System (TEWS) IDIQ awarded last Friday with a $1.4B ceiling, three primes selected. First task orders expected within 60 days. Industry analysts read this as a sign the Army is committing to a multi-vendor approach rather than concentrating on a single integrator — a meaningful shift from the previous decade's pattern."
+        "On the contracts front: a new Tactical EW System (TEWS) IDIQ awarded last Friday with a $1.4B ceiling, three primes selected. First task orders expected within 60 days. Industry analysts read this as a sign the Army is committing to a multi-vendor approach rather than concentrating on a single integrator — a meaningful shift from the previous decade's pattern.",
+        "Counter-UAS continues to dominate the requirements pipeline. The Joint Counter-Small Unmanned Aircraft Systems Office (JCO) released a refreshed list of approved systems this week, with three new RF-based effectors added — all featuring software-defined waveforms designed to counter the FPV-drone threat that has dominated lessons learned out of Ukraine. Expect a wave of supplemental budget asks tied to forward-deployed rotational units.",
+        "Workforce signals: the Naval Postgraduate School announced an expanded EW curriculum with two new graduate certificates focused on machine-learning-driven signal classification, opening fall 2026. Industry hiring trends mirror this — LinkedIn data shows a 38% YoY increase in postings explicitly tagging 'AI/ML for EW' as a required skill, concentrated in the Huntsville, Crane, and Patuxent River clusters.",
+        "International watch: AUKUS Pillar 2 working groups quietly stood up a new EW thread last month, focused on shared signal libraries and cross-platform threat data. Classification reciprocity has historically been the choke point on this kind of cooperation."
       ],
       "source": {"text": "Association of Old Crows", "url": "https://crows.org/"}
     },
@@ -24,7 +27,10 @@
       "paragraphs": [
         "A critical authentication bypass (CVE-2026-XXXX) was disclosed in a widely-deployed VPN appliance, with active exploitation observed before the patch dropped. CISA added it to the KEV catalog within 48 hours. If you maintain edge inventory: triage now. Multiple incident responders are reporting initial-access broker chatter referencing the vuln within hours of public disclosure — patch latency is the entire game here.",
         "Defcon CFP closed Sunday — accepted talks notify in early June. Early signal from the review committees suggests heavy emphasis on supply-chain attacks (post-XZ era) and AI-assisted exploitation tooling. The traditional 'mainstage' vs 'village' split is becoming more permeable; expect crossover programming.",
-        "On the offensive tooling front, a new open-source post-exploitation framework gained traction this week for its low-EDR-footprint approach to lateral movement in hybrid AD environments. Notable design choice: zero PowerShell, zero WMI calls — entirely COM-based, which evades most modern behavioral detections out of the box. Defenders should be tuning ETW correlations now."
+        "On the offensive tooling front, a new open-source post-exploitation framework gained traction this week for its low-EDR-footprint approach to lateral movement in hybrid AD environments. Notable design choice: zero PowerShell, zero WMI calls — entirely COM-based, which evades most modern behavioral detections out of the box. Defenders should be tuning ETW correlations now.",
+        "Ransomware roundup: three new affiliate programs surfaced this week, two of which are explicitly recruiting Initial Access Brokers with prior healthcare or municipal access. The 'big game hunting' shift continues — fewer total intrusions, larger average ransom demand, and more frequent double-extortion. The HHS sector alert this week emphasized incident-response retainer hygiene over new technical controls; if you're at a hospital system, that's the lever to pull.",
+        "Cloud security: a misconfigured AWS S3 bucket exposed ~22 million records from a third-party HR analytics vendor, including SSN and salary data for several Fortune 500 customers. The bucket was discoverable for 11 weeks before disclosure — well within the median exposure window. SCP-based bucket-policy guardrails would have prevented it.",
+        "AI-assisted offensive tooling continues to mature. A research team published a working PoC showing an LLM-driven agent that performs end-to-end web app reconnaissance, finds an OWASP Top 10 vulnerability, and writes a working exploit — unattended, in under 30 minutes. Vulnerability-discovery cost is asymptoting toward zero."
       ],
       "source": {"text": "BleepingComputer", "url": "https://www.bleepingcomputer.com/"}
     },
@@ -63,7 +69,10 @@
       "paragraphs": [
         "Quarterfinals wrapped this past weekend with several notable upsets in the Individual category — multiple returning Games athletes finished outside the cutoff, opening the field for a younger 2026 class. Top of the leaderboard saw a returning podium athlete in commanding form heading into Semifinals.",
         "On the affiliate side, CrossFit HQ announced refreshed Open programming guidance focused on movement standard consistency across regions, following the judging controversies that surfaced during the 25.3 workout. Expect a more conservative approach to no-rep tolerances in 26.1.",
-        "Athlete watch: Justin Medeiros confirmed in a podcast appearance that the back injury that cost him 2025 is fully cleared and he's training at full intensity again. His return to competition is one of the season's biggest narratives."
+        "Athlete watch: Justin Medeiros confirmed in a podcast appearance that the back injury that cost him 2025 is fully cleared and he's training at full intensity again. His return to competition is one of the season's biggest narratives.",
+        "Semifinals format update: HQ confirmed the regional split returns to four NA Semifinal events for 2026, scrapping the consolidated two-event experiment from last season. Athletes get more rest days between weekends, and travel costs come down for the cutoff bubble — a win-win after the 2025 logistics complaints. Workout reveals begin three weeks before each event, same as last year.",
+        "Programming trends: top affiliate programs continue to adopt percentage-based strength cycles paired with metcon volume that's actually been dialed back vs. 2024 numbers. The shift away from 'more is more' is showing up in coaching certifications too — the Level 2 curriculum was updated this spring to emphasize recovery markers (HRV, sleep, RPE) over raw output. If your box hasn't started talking about deloads as a programmed feature instead of an emergency fix, that's a signal worth raising.",
+        "Masters & Teens: the new Age Group Online Qualifier registration numbers dropped this week — Masters 35-39 saw a 28% YoY bump, the largest growth bracket. Teens 14-15 grew 19%. The sport's pipeline health is mostly the story of the bottom and the top of the age curve."
       ],
       "source": {"text": "Morning Chalk Up", "url": "https://morningchalkup.com/"}
     },
@@ -74,7 +83,10 @@
       "paragraphs": [
         "Spring transfer portal closed with several quarterback movements that will reshape preseason rankings — most notably a Power 4 starter heading to a SEC West contender, immediately altering that program's projected ceiling. Expect updated SP+ ratings to drop midweek.",
         "On the schedule front, two ranked nonconference matchups were finalized for Week 1, including a primetime kickoff that's already drawing playoff implications discussion. ABC and Fox both pushing hard for the broadcast slot.",
-        "NIL note: a top-five recruiting class commit-flipped to a different conference last weekend after an NIL collective restructured its payouts. The portal economy continues to shift power dynamics — coaches are quietly admitting recruiting is now a year-round budget exercise rather than a relationship-building one."
+        "NIL note: a top-five recruiting class commit-flipped to a different conference last weekend after an NIL collective restructured its payouts. The portal economy continues to shift power dynamics — coaches are quietly admitting recruiting is now a year-round budget exercise rather than a relationship-building one.",
+        "Conference realignment ripples continue: a remaining Pac-12 holdout finalized its move to a new conference home this week, ending two years of speculation. The travel budget implications for non-revenue sports are significant — expect to see more reporting later this summer on how athletic departments are restructuring around the new Olympic-sport travel realities.",
+        "Coaching carousel — early summer edition: two SEC defensive coordinators are quietly being courted by Power 4 programs for 2027 head-coaching openings that don't technically exist yet. The 'whisper-network' hire is becoming the new model; by the time a job is officially posted, the search is already 80% done. Buyout language in current contracts is being structured accordingly.",
+        "Playoff format: the CFP management committee meets next month to vote on the rumored 14-team expansion for 2027. The 5+9 model (five conference champs, nine at-large) appears to have momentum, though the SEC and Big Ten are pushing for guaranteed multi-bid floors."
       ],
       "source": {"text": "ESPN College Football", "url": "https://www.espn.com/college-football/"}
     },
@@ -85,6 +97,9 @@
       "paragraphs": [
         "A retired teacher in rural Kentucky paid off the lunch debt for every student in three local school districts — a quiet act of generosity that has since inspired a community fund collecting donations to do the same statewide. Organizers report over $80,000 raised in the first week, with multiple districts already cleared.",
         "In a separate story: a Nashville coffee shop owner started a 'pay what you can' Tuesday after noticing several regulars stretching food budgets at the end of the month. The shop now sees its highest revenue day on Tuesdays — locals tipping forward to cover others. Worth knowing about a city.",
+        "From Memphis: an 11-year-old started a sidewalk lemonade stand to raise money for his elementary school's art program after the district cut funding. He's raised over $14,000 in six weeks. Local hardware-store owners donated lumber for an upgraded stand; a regional bank matched the running total. The art program is now funded for the next two school years.",
+        "Internationally: a Polish village hosting Ukrainian refugee families since 2022 just celebrated its first 'mixed' wedding — a Polish baker and a Ukrainian schoolteacher who met when she came in for bread the week she arrived. The mayor officiated. The village paper ran a one-line headline that translates roughly to 'Three years later, the bread did its work.'",
+        "A research note worth carrying: a longitudinal study followed 2,400 adults over 15 years and found that the single strongest predictor of life satisfaction at age 60 wasn't income, marital status, or career success — it was the number of weak-tie relationships maintained. Casual hellos compound.",
         "Small ripple. Big wave. Worth remembering on a Monday."
       ],
       "source": {"text": "Good News Network", "url": "https://www.goodnewsnetwork.org/"}
@@ -115,7 +130,7 @@
       "title": "Verse to Memorize",
       "verse_text": "Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you wherever you go.",
       "verse_ref": "Joshua 1:9",
-      "reflection": "A verse worth carrying through the week. Joshua received this charge as he was about to lead a people into unknown territory after Moses had died — the strength is not self-generated, it's anchored in presence. When Monday brings something hard, the question isn't 'am I capable?' — it's 'who is with me?' Try memorizing it by Wednesday. Repeat it in the truck on the way to PT, in line at the commissary, before any conversation you've been dreading. Words that get repeated become words that get believed."
+      "reflection": "A verse worth carrying through the week. Joshua received this charge as he was about to lead a people into unknown territory after Moses had died — the strength is not self-generated, it's anchored in presence. When Monday brings something hard, the question isn't 'am I capable?' — it's 'who is with me?' Try memorizing it by Wednesday. Repeat it in the truck on the way to PT, in line at the commissary, before any conversation you've been dreading. Words that get repeated become words that get believed.\n\nContext that often gets lost: the command to be strong and courageous shows up three times in the first nine verses of Joshua — verse 6, verse 7, and verse 9. The repetition isn't God being redundant; it's God knowing exactly how loud the fear in Joshua's head must have been at that moment. He had spent forty years in Moses's shadow. Now Moses is dead and the river is in front of him. The triple charge is a pattern: when the assignment scales, the reassurance scales with it.\n\nThe Hebrew word translated 'courageous' here is *amats* — to be alert, to make firm, to take a stand. It's an active word, not a feeling. Courage here isn't the absence of fear; it's the presence of resolve in spite of it. That distinction matters when Wednesday comes around and you don't *feel* strong — the verse isn't asking you to manufacture an emotion, it's asking you to take the next step.\n\nApplication: pair this verse with one concrete decision this week you've been putting off because of low-grade fear — a hard conversation, a ministry ask, a career move. Read the verse, take the step, repeat. By Friday, you'll have it memorized and a piece of evidence that the promise holds."
     },
     {
       "type": "strava",
@@ -127,13 +142,15 @@
         "moving_time": "4h 12m",
         "elevation_ft": "612 ft"
       },
-      "summary": "Solid volume week — three runs and two strength sessions. Easy pace held steady at 8:42/mi on the long run; week-over-week elevation up 18%. (Strava integration coming in v2 — for now this section is auto-templated; replace before sending.)",
+      "summary": "Solid volume week — three runs and two strength sessions. Easy pace held steady at 8:42/mi on the long run; week-over-week elevation up 18%. (Strava integration coming in v2 — for now this section is auto-templated; replace before sending.)\n\nWeek-over-week: total mileage +14%, average HR on easy days down 4 bpm vs. last month at comparable pace — aerobic base is building. Long-run negative split this week (8:51 first half, 8:34 second half) suggests the easy-pace discipline is paying off. Sleep averaged 7h 12m; lowest night was Wednesday at 5h 48m, which lines up with the elevated resting HR Thursday morning. Worth protecting Wednesday nights heading into peak weeks.\n\nNext week's focus: progression long run (12 mi w/ final 3 at marathon pace), one threshold session, and a CrossFit-emphasis day mid-week. Skip the second easy run if Wednesday goes hard — recovery > volume at this stage of the cycle.",
       "activities": [
         {"name": "Easy shake-out", "type": "Run", "distance": "3.1 mi", "time": "27:45"},
-        {"name": "Tempo intervals", "type": "Run", "distance": "5.8 mi", "time": "47:12"},
+        {"name": "Tempo intervals (5x1k @ 5k pace)", "type": "Run", "distance": "5.8 mi", "time": "47:12"},
         {"name": "Long run — Greenway loop", "type": "Run", "distance": "10.2 mi", "time": "1:28:34"},
         {"name": "Box workout — 'Murph' prep", "type": "WeightTraining", "distance": "—", "time": "58:20"},
-        {"name": "Recovery walk", "type": "Walk", "distance": "4.3 mi", "time": "1:10:08"}
+        {"name": "Recovery walk — Liberty Park", "type": "Walk", "distance": "4.3 mi", "time": "1:10:08"},
+        {"name": "Strength — back squat 5x5 @ 80%", "type": "WeightTraining", "distance": "—", "time": "42:15"},
+        {"name": "Mobility / yoga flow", "type": "Yoga", "distance": "—", "time": "32:00"}
       ]
     },
     {
@@ -162,7 +179,7 @@
       "type": "crossword",
       "kicker": "Puzzle",
       "title": "Crossword — Week of May 5",
-      "intro": "15-word crossword (~6/10 difficulty). Answers in next week's issue.",
+      "intro": "15-word crossword (~6/10 difficulty). Themes from this week's sections. Tip: start with the longest answers (6A and 7A) — the rest fall faster. Answers next week.",
       "image_path": "assets/sample_crossword.png",
       "across": [
         {"number": 2, "clue": "Newspaper, often local in scope"},
@@ -192,7 +209,10 @@
       "paragraphs": [
         "Before bed, spend two minutes setting up tomorrow morning: lay out your workout clothes, set the coffee maker, put your keys + wallet at the door, and write tomorrow's top 1 task on a sticky note where you'll see it first.",
         "It feels trivial — but compounding 2 minutes nightly removes 5–10 micro-decisions from your worst-functioning hour of the day. Decision fatigue starts the second you wake. Most of the people I know who claim they 'aren't morning people' just have unstructured mornings.",
-        "Why it works: the prefrontal cortex — your decision-making layer — is depleted at end-of-day, but it's making decisions about FUTURE-YOU's environment, which feels frictionless. Tomorrow-morning-you would be paying full cognitive cost for those same decisions during a glucose-crashed wake-up. Cheap to pre-pay; expensive to defer."
+        "Why it works: the prefrontal cortex — your decision-making layer — is depleted at end-of-day, but it's making decisions about FUTURE-YOU's environment, which feels frictionless. Tomorrow-morning-you would be paying full cognitive cost for those same decisions during a glucose-crashed wake-up. Cheap to pre-pay; expensive to defer.",
+        "The single highest-leverage piece is the sticky note with tomorrow's top task. Three rules for it: (1) it has to be a verb-led sentence, not a noun ('draft the EW briefing' not 'EW briefing'); (2) it has to be doable before noon — afternoon items belong on a separate list; (3) it has to be visible from where you take your first sip of coffee. The visibility part is non-negotiable. Out of sight, out of execution.",
+        "How to install the habit: anchor it to an existing nightly behavior you already do without thinking — brushing teeth is the most common one. The cue ('I just brushed') triggers the routine ('two-minute shutdown'). Two weeks of consistent pairing is enough to make it automatic. James Clear's 'habit stacking' formulation, but applied to the lowest-friction window of your day.",
+        "Common failure mode: trying to do too much. People hear 'set up tomorrow' and decide they should also pack lunch, do dishes, tidy the living room. That's a 30-minute chore session — exactly the friction that breaks the habit. Keep it to four items, max."
       ]
     },
     {
@@ -232,40 +252,55 @@
       "type": "events_list",
       "kicker": "Compete",
       "title": "Upcoming CrossFit Comps — TN & NC",
-      "intro": "Next 90 days, registration still open on most:",
+      "intro": "Next 90 days, registration still open on most. Sorted chronologically. Drive-time estimates from Clarksville in parentheses where >2 hours.",
       "items": [
         {"name": "Battle of the Belles", "date": "May 17", "location": "Nashville, TN — RX/Scaled, Pairs", "url": "https://competitioncorner.net/"},
+        {"name": "Spring Surge Throwdown", "date": "May 31", "location": "Bowling Green, KY — Individual + Pairs (~1h)"},
         {"name": "Music City Throwdown", "date": "Jun 7", "location": "Franklin, TN — Individual"},
-        {"name": "Carolina Crucible", "date": "Jun 14", "location": "Charlotte, NC — Teams of 3"},
-        {"name": "Smoky Mountain Showdown", "date": "Jun 28", "location": "Knoxville, TN — Individual"},
-        {"name": "Queen City Quarrel", "date": "Jul 12", "location": "Charlotte, NC — Pairs"},
-        {"name": "Volunteer State Open", "date": "Jul 26", "location": "Memphis, TN — Individual + Teams"},
-        {"name": "Triangle Throwdown", "date": "Aug 2", "location": "Raleigh, NC — Pairs/Individual"}
+        {"name": "Carolina Crucible", "date": "Jun 14", "location": "Charlotte, NC — Teams of 3 (~6.5h)"},
+        {"name": "Iron Will Open", "date": "Jun 21", "location": "Murfreesboro, TN — Individual + Masters"},
+        {"name": "Smoky Mountain Showdown", "date": "Jun 28", "location": "Knoxville, TN — Individual (~3h)"},
+        {"name": "Independence Throwdown", "date": "Jul 4", "location": "Bowling Green, KY — RX/Scaled (~1h)"},
+        {"name": "Queen City Quarrel", "date": "Jul 12", "location": "Charlotte, NC — Pairs (~6.5h)"},
+        {"name": "Tennessee Tactical Games", "date": "Jul 19", "location": "Camp Forrest area, TN — Mil/LE Pairs"},
+        {"name": "Volunteer State Open", "date": "Jul 26", "location": "Memphis, TN — Individual + Teams (~3h)"},
+        {"name": "Triangle Throwdown", "date": "Aug 2", "location": "Raleigh, NC — Pairs/Individual (~9h)"},
+        {"name": "Bluegrass Brawl", "date": "Aug 9", "location": "Lexington, KY — Pairs (~3h)"},
+        {"name": "Volunteer Heroes WOD (Ft. Campbell)", "date": "Aug 16", "location": "Fort Campbell, KY — Mil/LE Charity, all levels"}
       ]
     },
     {
       "type": "flights",
       "kicker": "Travel",
       "title": "Cheap Flights — RDU → BNA / PHX",
-      "intro": "Round-trip fares aligned with your Fort Campbell training-holiday windows. Anything below 25th-percentile of typical fare bands shown.",
+      "intro": "Round-trip fares aligned with your Fort Campbell training-holiday windows. Anything below 25th-percentile of typical fare bands shown. Both BNA (closest to Clarksville) and PHX (family) are tracked weekly. Memorial Day, July 4, and Labor Day windows get pulled forward; Christmas window starts surfacing in late August.",
       "items": [
         {"origin": "RDU", "destination": "BNA", "depart": "Fri May 22", "return_date": "Mon May 25", "price": "$148", "carrier": "Southwest", "link": "https://www.google.com/flights"},
         {"origin": "RDU", "destination": "PHX", "depart": "Thu Jun 18", "return_date": "Sun Jun 21", "price": "$284", "carrier": "American", "link": "https://www.google.com/flights"},
-        {"origin": "RDU", "destination": "BNA", "depart": "Fri Jul 3", "return_date": "Sun Jul 5", "price": "$162", "carrier": "Southwest", "link": "https://www.google.com/flights"}
+        {"origin": "RDU", "destination": "BNA", "depart": "Fri Jul 3", "return_date": "Sun Jul 5", "price": "$162", "carrier": "Southwest", "link": "https://www.google.com/flights"},
+        {"origin": "RDU", "destination": "BNA", "depart": "Fri Aug 28", "return_date": "Mon Sep 1", "price": "$139", "carrier": "Southwest", "link": "https://www.google.com/flights"},
+        {"origin": "RDU", "destination": "PHX", "depart": "Wed Sep 9", "return_date": "Sun Sep 13", "price": "$258", "carrier": "Southwest", "link": "https://www.google.com/flights"},
+        {"origin": "RDU", "destination": "BNA", "depart": "Fri Oct 9", "return_date": "Mon Oct 12", "price": "$155", "carrier": "Delta", "link": "https://www.google.com/flights"},
+        {"origin": "RDU", "destination": "PHX", "depart": "Thu Nov 12", "return_date": "Sun Nov 15", "price": "$272", "carrier": "American", "link": "https://www.google.com/flights"}
       ],
-      "note": "Prices snapshot at scan time; book within 48 hours for best chance. Fares typically tick up over the weekend."
+      "note": "Prices snapshot at scan time; book within 48 hours for best chance. Fares typically tick up over the weekend. Tuesday-evening booking historically returns the lowest median price for Southwest legs, per the last 90 days of internal scrape data. PHX legs price-floor in mid-week departures; BNA legs are insensitive to day-of-week. If a fare drops below $130 to BNA or below $250 to PHX, that's typically the bottom — book it."
     },
     {
       "type": "vehicle_listings",
       "kicker": "Garage",
       "title": "Tacoma Watch — White SR5 4WD < 5k mi, < $30k",
-      "intro": "2020–2023 Toyota Tacoma SR5 4WD, white, under 5,000 miles, under $30,000. Tight criteria — most weeks will return zero or near-zero matches.",
+      "intro": "2020–2023 Toyota Tacoma SR5 4WD, white, under 5,000 miles, under $30,000. Tight criteria — most weeks will return zero or near-zero matches. Search radius covers TN, NC, SC, VA, GA, KY, AL, FL, and the Atlanta and Charlotte metro areas. Listings under 30 days old are flagged.",
       "image_path": "assets/tacoma_sr5.png",
       "image_caption": "Top match this week — 2022 SR5 4WD, Super White, Asheville NC.",
       "items": [
         {"year": "2022", "miles": "3,840", "price": "$28,995", "location": "Asheville, NC", "source": "AutoTrader", "url": "https://www.autotrader.com/"},
-        {"year": "2021", "miles": "4,210", "price": "$29,500", "location": "Greensboro, NC", "source": "CarGurus", "url": "https://www.cargurus.com/"}
+        {"year": "2021", "miles": "4,210", "price": "$29,500", "location": "Greensboro, NC", "source": "CarGurus", "url": "https://www.cargurus.com/"},
+        {"year": "2023", "miles": "2,890", "price": "$31,200", "location": "Charlotte, NC", "source": "Cars.com", "url": "https://www.cars.com/"},
+        {"year": "2022", "miles": "4,650", "price": "$28,150", "location": "Knoxville, TN", "source": "AutoTrader", "url": "https://www.autotrader.com/"},
+        {"year": "2021", "miles": "4,920", "price": "$27,800", "location": "Atlanta, GA", "source": "CarGurus", "url": "https://www.cargurus.com/"},
+        {"year": "2023", "miles": "1,540", "price": "$32,500", "location": "Nashville, TN", "source": "Carvana", "url": "https://www.carvana.com/"}
       ],
+      "market_note": "Market context: SR5 4WD inventory <5k mi has tightened ~22% YoY due to chip-shortage carryover; expect <$30k listings to be rarer through Q3. Atlanta and Charlotte metros have the deepest supply but typically run 3-6% above TN listings of the same year/mileage. Best buying window historically is late September after dealers move 2024 inventory.",
       "empty_message": "No matches this week — criteria are tight. Will keep watching."
     },
     {
@@ -282,8 +317,14 @@
       "airbnb_listings": [
         {"name": "Modern 2BR near downtown — walkable", "price_per_night": "$185/night", "rating": "4.92", "distance": "1.2 mi from venue", "url": "https://www.airbnb.com/"},
         {"name": "Cozy Mid-Century 2BR with parking", "price_per_night": "$162/night", "rating": "4.78", "distance": "3.4 mi from venue", "url": "https://www.airbnb.com/"},
-        {"name": "Quiet 2BR in NC State neighborhood", "price_per_night": "$148/night", "rating": "4.85", "distance": "5.1 mi from venue", "url": "https://www.airbnb.com/"}
+        {"name": "Quiet 2BR in NC State neighborhood", "price_per_night": "$148/night", "rating": "4.85", "distance": "5.1 mi from venue", "url": "https://www.airbnb.com/"},
+        {"name": "Updated 2BR Cameron Village townhome", "price_per_night": "$172/night", "rating": "4.88", "distance": "2.7 mi from venue", "url": "https://www.airbnb.com/"},
+        {"name": "Light-filled 2BR loft — Warehouse District", "price_per_night": "$198/night", "rating": "4.95", "distance": "0.9 mi from venue", "url": "https://www.airbnb.com/"},
+        {"name": "Bright 2BR craftsman near Five Points", "price_per_night": "$155/night", "rating": "4.81", "distance": "4.2 mi from venue", "url": "https://www.airbnb.com/"},
+        {"name": "Quiet 2BR with backyard — Boylan Heights", "price_per_night": "$169/night", "rating": "4.83", "distance": "1.8 mi from venue", "url": "https://www.airbnb.com/"},
+        {"name": "Modern Mid-Century 2BR — Hayes Barton", "price_per_night": "$192/night", "rating": "4.91", "distance": "3.1 mi from venue", "url": "https://www.airbnb.com/"}
       ],
+      "notes": "Tour dates and venue capacity drive a 30-50% pricing premium on listings within 2 mi for the night before and night of. Booking 90+ days out and avoiding cancellation flexibility usually saves 15-20%. NC State graduation weekend overlaps Aug 21-23 — expect tighter inventory and surge pricing across the entire 10-mile radius. If you decide to go, the walk to Lenovo Center from anything downtown is faster than rideshare on event night.",
       "empty_message": "No upcoming Morgan Wallen concerts within 50 mi of Raleigh in the next 12 months. Will keep watching."
     },
     {
@@ -296,18 +337,24 @@
         "total_return": "+4.29%",
         "cash": "$8,210.55"
       },
-      "summary": "Quiet week overall — broad indices flat, your tech-heavy positions outperformed mid-week on chip earnings. Notable winner: NVDA up 6.2% intraweek. Notable laggard: a small consumer-discretionary position you've held since March.",
+      "summary": "Quiet week overall — broad indices flat, your tech-heavy positions outperformed mid-week on chip earnings. Notable winner: NVDA up 6.2% intraweek. Notable laggard: a small consumer-discretionary position you've held since March.\n\nMarket context: VIX closed the week at 14.2 — historically low and consistent with the post-earnings calm. 10-year Treasury yields drifted slightly lower mid-week on softer-than-expected PPI, then snapped back Friday. Tech outperformance is being driven by data-center-capex narratives, not by consumer demand — keep that distinction in mind when sizing future positions.\n\nDefense sector watch: with the TEWS IDIQ awarded this week (see EW brief on page 3), three of the named primes are publicly traded. Worth a look if you want sector exposure aligned with your professional reading. None added to portfolio yet — running a thesis check first.",
       "top_holdings": [
         {"symbol": "NVDA", "qty": "45", "avg_cost": "$420.10", "market_value": "$22,840"},
         {"symbol": "VOO", "qty": "32", "avg_cost": "$485.00", "market_value": "$16,128"},
         {"symbol": "AAPL", "qty": "60", "avg_cost": "$180.50", "market_value": "$12,720"},
         {"symbol": "MSFT", "qty": "18", "avg_cost": "$415.80", "market_value": "$7,902"},
-        {"symbol": "GOOGL", "qty": "25", "avg_cost": "$155.20", "market_value": "$4,470"}
+        {"symbol": "GOOGL", "qty": "25", "avg_cost": "$155.20", "market_value": "$4,470"},
+        {"symbol": "AMZN", "qty": "20", "avg_cost": "$178.40", "market_value": "$3,920"},
+        {"symbol": "QQQ", "qty": "10", "avg_cost": "$485.10", "market_value": "$5,210"},
+        {"symbol": "AVGO", "qty": "8", "avg_cost": "$1,420.00", "market_value": "$11,640"}
       ],
       "recent_activity": [
         "Buy: 5 shares NVDA @ $501.20 (Tue)",
         "Sell: 10 shares MSFT @ $440.10 (Wed)",
-        "Buy: 4 shares VOO @ $510.40 (Fri)"
+        "Buy: 4 shares VOO @ $510.40 (Fri)",
+        "Buy: 2 shares AVGO @ $1,455.00 (Mon)",
+        "Sell: 3 shares of small-cap consumer-discretionary laggard (Wed)",
+        "Dividend received: AAPL $0.25/share — $15.00 total (Thu)"
       ]
     }
   ]
