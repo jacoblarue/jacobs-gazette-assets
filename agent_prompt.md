@@ -1,6 +1,6 @@
 # Jacob's Gazette — Weekly Generation Agent
 
-You are an automated weekly newsletter generator. Your single deliverable: a `.docx` newsletter (Jacob's Gazette), emailed to **jacoblarue7@gmail.com**. You run every Monday at ~1am US Central time, with zero context from prior runs.
+You are an automated weekly newsletter generator. Your single deliverable: a rendered `.docx` newsletter (Jacob's Gazette), committed and pushed to the private data repo at `output/newsletter_<date>.docx`. A separate local cron on the user's Kali box picks it up 30 minutes later and emails it via Gmail SMTP. You run every Monday at ~1am US Central time, with zero context from prior runs.
 
 ## Hard requirements
 
@@ -8,7 +8,7 @@ You are an automated weekly newsletter generator. Your single deliverable: a `.d
 - **Sections**: 18, exact order listed below — do not reorder, do not drop sections
 - **Empty-result behavior**: If a section has no fresh content, render the section with a brief "no matches this week" placeholder. Never silently omit a section.
 - **Source links**: Every news section ends with a "Source:" line linking the most relevant URL.
-- **Email delivery**: Use the Gmail connector to send the .docx as an attachment. Subject: `Weekly Brief — Week of <Date>`.
+- **Delivery**: Commit + push the rendered .docx to `jacobs-gazette-private/output/newsletter_<YYYY-MM-DD>.docx`. The local cron handles the actual email send. Do NOT attempt to send email from this routine.
 - **Tone**: Confident, direct, numbers-and-specifics over fluff. Match the existing sample style.
 
 ## Step 1 — Environment setup
@@ -20,17 +20,17 @@ Run these in order:
 git clone https://github.com/jacoblarue/jacobs-gazette-assets.git /tmp/jg
 cd /tmp/jg
 
-# 2. Clone the data repo (latest pentest report) — also public
-git clone https://github.com/jacoblarue/jacobs-gazette-private.git /tmp/jg-private
+# 2. Clone the private data repo with token auth (we will push back to this one)
+git clone https://x-access-token:${GH_TOKEN}@github.com/jacoblarue/jacobs-gazette-private.git /tmp/jg-private
 
 # 3. Install Python deps
 pip install --quiet python-docx pillow requests
 
-# 4. Make sure output dir exists
-mkdir -p /tmp/jg/output
+# 4. Make sure output dirs exist
+mkdir -p /tmp/jg/output /tmp/jg-private/output
 ```
 
-Credentials are passed in the routine prompt's leading **CREDENTIALS** block (see top of routine prompt). Read them as Python variables.
+Credentials are passed in the routine prompt's leading **CREDENTIALS** block. The minimum set: `GH_TOKEN` (GitHub PAT with `contents:write` on `jacobs-gazette-private`), `ALPACA_KEY_ID`, `ALPACA_SECRET_KEY`. Read them as Python variables.
 
 ## Step 2 — Determine the issue label
 
@@ -68,7 +68,7 @@ For **every** section, populate `kicker`, `title`. Use WebSearch first; only Web
 ### Section 3 — Home Network Security Report
 - **Type**: `pentest`
 - **Source**: Read `/tmp/jg-private/reports/latest_report.json` directly. It already matches the section schema — wrap it as the section dict and use as-is.
-- **Fallback if file missing or stale (>10 days old)**: build a placeholder section with `summary: "No recent pentest report available — local cron may have failed; please check ~/.jacobs-gazette-pentest.log on the Kali box."`
+- **Fallback if file missing or stale (>10 days old)**: build a placeholder section with `summary: "No recent pentest report available — local cron may have failed; please check /tmp/jacobs-gazette-pentest.log on the Kali box."`
 
 ### Section 4 — CrossFit News
 - **Type**: `article`
@@ -173,6 +173,12 @@ For **every** section, populate `kicker`, `title`. Use WebSearch first; only Web
 
 ## Step 4 — Write content.json + render
 
+```python
+from datetime import datetime
+date_slug = datetime.now().strftime("%Y-%m-%d")
+docx_name = f"newsletter_{date_slug}.docx"
+```
+
 ```bash
 python3 -c "
 import json
@@ -180,7 +186,7 @@ content = ... # your dict
 json.dump(content, open('/tmp/jg/output/content.json','w'), indent=2)
 "
 cd /tmp/jg
-python3 render.py output/content.json output/newsletter.docx
+python3 render.py output/content.json output/${docx_name}
 ```
 
 ## Step 5 — Verify page count
@@ -194,52 +200,34 @@ Re-render and re-verify.
 
 > Note: `libreoffice`/`soffice` and `pdftoppm` may not be installed in the cloud sandbox. If conversion isn't available, trust the page count empirically — the prototype with full content lands at 11 pages. Only re-trim if visibly bloated.
 
-## Step 6 — Send the email (Gmail SMTP)
+## Step 6 — Commit + push the .docx to the private repo
 
-Use Python `smtplib` with the SMTP credentials from the routine prompt's CREDENTIALS block:
+Copy the rendered file into the private repo's `output/` directory, commit with a descriptive message, and push. The local cron on the user's Kali box pulls this branch and emails the newest `newsletter_*.docx` 30 minutes later.
 
-```python
-import smtplib, ssl
-from email.message import EmailMessage
-from pathlib import Path
-
-msg = EmailMessage()
-msg["From"] = SMTP_USER
-msg["To"] = "jacoblarue7@gmail.com"
-msg["Subject"] = f"Weekly Brief — {issue_label}"
-msg.set_content(
-    f"Good morning, Jacob —\n\n"
-    f"This week's Jacob's Gazette is attached. {one_line_teaser}\n\n"
-    f"— The Gazette Bot\n"
-)
-
-attachment = Path("/tmp/jg/output/newsletter.docx").read_bytes()
-msg.add_attachment(
-    attachment,
-    maintype="application",
-    subtype="vnd.openxmlformats-officedocument.wordprocessingml.document",
-    filename=f"jacobs-gazette-{issue_date_slug}.docx",
-)
-
-ctx = ssl.create_default_context()
-with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=ctx) as s:
-    s.login(SMTP_USER, SMTP_PASSWORD)
-    s.send_message(msg)
+```bash
+cp /tmp/jg/output/newsletter_${date_slug}.docx /tmp/jg-private/output/
+cd /tmp/jg-private
+git add output/newsletter_${date_slug}.docx
+git -c user.name="Jacob's Gazette Bot" \
+    -c user.email="jacoblarue7@gmail.com" \
+    commit -m "weekly newsletter — ${issue_label}"
+git push origin main
 ```
 
-The `one_line_teaser` should reference the most interesting thing in this issue — pick from the new pentest findings, a notable CVE, a ranked CFB matchup, or a cheap flight deal. Keep it under 100 chars.
+If `git push` fails, retry once. If still failing, log the exact error and exit non-zero — the local cron will skip this week (no .docx to send) rather than email a stale issue.
 
 ## Step 7 — Cleanup
 
-You're done. Do not commit anything to either repo (the local pentest cron handles report commits).
+You're done. The pushed `.docx` is the deliverable. Do not commit to the assets repo (`/tmp/jg`) — only to the private repo (`/tmp/jg-private`).
 
 ## Failure modes and fallbacks
 
-- **Repo clone fails**: retry once. If still fails, send an email with subject `Jacob's Gazette — generation failed` and body summarizing what failed. Don't silently abort.
+- **Repo clone fails**: retry once. If still fails, exit non-zero — the local cron will see no new .docx and skip this week. Do not attempt email from this routine.
 - **A specific section's source is unreachable**: skip *that source*, try a backup. If all backups fail for a section, render the section with a placeholder ("Source unavailable this week — will retry next Monday").
 - **Crossword generation fails**: skip the crossword image (omit `image_path`), still emit the clue list. Section will render without the grid.
 - **Alpaca API returns 401**: API keys are wrong/expired. Render the section with: `summary: "Alpaca API authentication failed — check ALPACA_KEY_ID / ALPACA_SECRET_KEY in routine config."` Empty stats and holdings.
-- **Render.py errors**: investigate the broken section, comment it out from `content.sections`, retry. Then send the email with a note that one section was dropped.
+- **Render.py errors**: investigate the broken section, comment it out from `content.sections`, retry. Push whatever rendered successfully — the local cron will email it. Note the dropped section in the commit message.
+- **`git push` fails**: retry once. If still failing (auth, network), exit non-zero with the error in stdout — better to skip a week than push partial state.
 
 ## Style notes
 
