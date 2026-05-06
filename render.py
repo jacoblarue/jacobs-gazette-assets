@@ -315,7 +315,7 @@ def render_recipe(doc: Document, section: dict) -> None:
         _styled_run(mp, " • ".join(meta_bits), italic=True, size=10, color=MUTED_GRAY)
     if section.get("intro"):
         _body_paragraph(doc, section["intro"])
-    _maybe_image(doc, section.get("image_path"), width_in=3.6, caption=section.get("image_caption"))
+    _maybe_image(doc, section.get("image_path"), width_in=3.0, caption=section.get("image_caption"))
 
     table = doc.add_table(rows=1, cols=2)
     table.autofit = True
@@ -477,7 +477,7 @@ def render_vehicle_listings(doc: Document, section: dict) -> None:
     _section_heading(doc, section["title"], kicker=section.get("kicker"))
     if section.get("intro"):
         _body_paragraph(doc, section["intro"])
-    _maybe_image(doc, section.get("image_path"), width_in=4.5, caption=section.get("image_caption"))
+    _maybe_image(doc, section.get("image_path"), width_in=3.4, caption=section.get("image_caption"))
     items = section.get("items", [])
     if not items:
         _body_paragraph(doc, section.get("empty_message", "No matches this week — will keep watching."), italic=True)

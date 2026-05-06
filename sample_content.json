@@ -110,7 +110,7 @@
       "title": "Around Clarksville & Nashville",
       "intro": "Events in the next 30 days worth knowing about:",
       "image_path": "assets/event_nashville.png",
-      "image_caption": "Spring event season hits its peak across Middle Tennessee.",
+      "image_caption": "Lower Broadway, Nashville — the live-music spine of Middle Tennessee.",
       "items": [
         {"name": "Rivers & Spires Festival", "date": "May 8–10", "location": "Downtown Clarksville — free", "url": "https://www.riversandspires.com/"},
         {"name": "Nashville Symphony — Beethoven's 9th", "date": "May 9, 7:30pm", "location": "Schermerhorn Symphony Center", "url": "https://www.nashvillesymphony.org/"},
@@ -203,16 +203,15 @@
     },
     {
       "type": "lifehack",
-      "kicker": "Life-Hack",
-      "title": "Trick of the Week",
-      "hack_name": "The 2-minute morning shutdown",
+      "kicker": "Money",
+      "title": "Financial Life Hacks",
+      "hack_name": "The retention-desk call: how to cut your phone or internet bill in 15 minutes",
       "paragraphs": [
-        "Before bed, spend two minutes setting up tomorrow morning: lay out your workout clothes, set the coffee maker, put your keys + wallet at the door, and write tomorrow's top 1 task on a sticky note where you'll see it first.",
-        "It feels trivial — but compounding 2 minutes nightly removes 5–10 micro-decisions from your worst-functioning hour of the day. Decision fatigue starts the second you wake. Most of the people I know who claim they 'aren't morning people' just have unstructured mornings.",
-        "Why it works: the prefrontal cortex — your decision-making layer — is depleted at end-of-day, but it's making decisions about FUTURE-YOU's environment, which feels frictionless. Tomorrow-morning-you would be paying full cognitive cost for those same decisions during a glucose-crashed wake-up. Cheap to pre-pay; expensive to defer.",
-        "The single highest-leverage piece is the sticky note with tomorrow's top task. Three rules for it: (1) it has to be a verb-led sentence, not a noun ('draft the EW briefing' not 'EW briefing'); (2) it has to be doable before noon — afternoon items belong on a separate list; (3) it has to be visible from where you take your first sip of coffee. The visibility part is non-negotiable. Out of sight, out of execution.",
-        "How to install the habit: anchor it to an existing nightly behavior you already do without thinking — brushing teeth is the most common one. The cue ('I just brushed') triggers the routine ('two-minute shutdown'). Two weeks of consistent pairing is enough to make it automatic. James Clear's 'habit stacking' formulation, but applied to the lowest-friction window of your day.",
-        "Common failure mode: trying to do too much. People hear 'set up tomorrow' and decide they should also pack lunch, do dishes, tidy the living room. That's a 30-minute chore session — exactly the friction that breaks the habit. Keep it to four items, max."
+        "If your phone or internet provider has held your bill steady (or worse, crept it up) for more than a year, you are almost certainly overpaying. The fix takes one phone call, fifteen minutes, and zero leverage beyond a single magic phrase: 'I'd like to cancel my service.' That phrase routes you out of regular customer support and into the **retention department** — a separate team whose entire job is to keep you from leaving. Retention agents have access to discounts, credits, and promotional rates that regular reps literally cannot offer.",
+        "The mechanic: providers know losing a customer costs them far more than discounting your bill. Industry CAC (customer acquisition cost) for telecom and ISP runs $300–$600 per new subscriber; cutting your monthly bill by $30–$50 to keep you is straightforward math for them. Consumer-finance reporting (Consumer Reports, NerdWallet, The Wall Street Journal) consistently finds retention departments offer 15–40% off advertised rates, plus one-time credits, faster speeds at the same price, or waived equipment fees.",
+        "Script that works: be polite, be specific, be willing to actually leave. Say: 'Hi — I've been a customer for X years, my bill is $Y, and I'm comparing to [competitor's published promo, e.g., T-Mobile $50/line, Spectrum $40/mo for 300Mbps]. I'd like to cancel today unless you can match it.' Don't argue. Don't justify. Wait. The first offer is rarely the best — if they say 'I can give you $10 off,' say 'thanks, but I need to be closer to that competitor's price to stay.' Most agents have escalation tiers; they'll keep going until they hit their cap.",
+        "Realistic numbers from public reporting and r/personalfinance threads: $20–$60 per month off a phone plan; $15–$40 per month off internet; sometimes a free upgrade (gigabit at the price of 500Mbps). Over 6 months that's $90–$360. Over 24 months — the typical promo lock — it's $360–$1,440. Worth a phone call.",
+        "Repeat every 12 months. Set a calendar reminder — promotional rates expire and providers will quietly bump you back to retail. The script works every year because the retention math doesn't change. Caveats: don't bluff if you genuinely can't leave (coverage dead zone, contracted bundle), don't accept a contract extension unless the math is clearly worth it, and always ask the agent to email a confirmation of the new rate and duration. If it's not in writing, it didn't happen."
       ]
     },
     {
@@ -225,7 +224,7 @@
       "calories": "~520 cal/serving",
       "intro": "Single sheet pan, one bowl for marinade, dinner on the table in 35 minutes. High protein, low effort, lots of vegetables, and the leftovers reheat well for next-day lunch. Bonus: you can swap the chicken for salmon (cut roast time to 12 min) or shrimp (8 min) without changing anything else.",
       "image_path": "assets/recipe_sheetpan.png",
-      "image_caption": "Sheet-pan lemon-herb chicken with charred broccoli and rosemary potatoes.",
+      "image_caption": "Roasted herb chicken with rosemary potatoes and peppers — what plated done looks like.",
       "ingredients": [
         "2 boneless skinless chicken breasts (~6 oz each)",
         "1 lb baby potatoes, halved",
@@ -244,8 +243,7 @@
         "Whisk olive oil, lemon juice, garlic, oregano, thyme, salt, pepper in a bowl.",
         "Toss potatoes with half the marinade; spread on sheet pan. Roast 10 minutes alone.",
         "Add chicken, broccoli, and bell pepper. Drizzle remaining marinade over everything.",
-        "Roast 18–22 minutes until chicken reaches 165°F internal and potatoes are fork-tender.",
-        "Garnish with fresh parsley and a squeeze of lemon. Serve."
+        "Roast 18–22 min until chicken hits 165°F internal and potatoes are fork-tender. Garnish with parsley and lemon. Serve."
       ]
     },
     {
@@ -289,9 +287,9 @@
       "type": "vehicle_listings",
       "kicker": "Garage",
       "title": "Tacoma Watch — White SR5 4WD < 5k mi, < $30k",
-      "intro": "2020–2023 Toyota Tacoma SR5 4WD, white, under 5,000 miles, under $30,000. Tight criteria — most weeks will return zero or near-zero matches. Search radius covers TN, NC, SC, VA, GA, KY, AL, FL, and the Atlanta and Charlotte metro areas. Listings under 30 days old are flagged.",
+      "intro": "2020–2023 Toyota Tacoma SR5 4WD, white, under 5,000 miles, under $30,000. Tight criteria — most weeks return zero or near-zero matches. Search radius covers TN, NC, SC, VA, GA, KY, AL, FL.",
       "image_path": "assets/tacoma_sr5.png",
-      "image_caption": "Top match this week — 2022 SR5 4WD, Super White, Asheville NC.",
+      "image_caption": "Reference photo of the target trim — clean white Tacoma in TRD spec.",
       "items": [
         {"year": "2022", "miles": "3,840", "price": "$28,995", "location": "Asheville, NC", "source": "AutoTrader", "url": "https://www.autotrader.com/"},
         {"year": "2021", "miles": "4,210", "price": "$29,500", "location": "Greensboro, NC", "source": "CarGurus", "url": "https://www.cargurus.com/"},
@@ -300,7 +298,7 @@
         {"year": "2021", "miles": "4,920", "price": "$27,800", "location": "Atlanta, GA", "source": "CarGurus", "url": "https://www.cargurus.com/"},
         {"year": "2023", "miles": "1,540", "price": "$32,500", "location": "Nashville, TN", "source": "Carvana", "url": "https://www.carvana.com/"}
       ],
-      "market_note": "Market context: SR5 4WD inventory <5k mi has tightened ~22% YoY due to chip-shortage carryover; expect <$30k listings to be rarer through Q3. Atlanta and Charlotte metros have the deepest supply but typically run 3-6% above TN listings of the same year/mileage. Best buying window historically is late September after dealers move 2024 inventory.",
+      "market_note": "Market context: <5k-mi SR5 4WD inventory has tightened ~22% YoY; expect <$30k listings to stay rare through Q3. Best buying window historically is late September after dealers move new inventory.",
       "empty_message": "No matches this week — criteria are tight. Will keep watching."
     },
     {
