@@ -1,6 +1,10 @@
 {
   "issue_date": "May 5, 2026",
   "issue_label": "Week of May 5, 2026",
+  "title_page": {
+    "image_path": "assets/title_page.png",
+    "tagline": "Faith • Tech • Tennessee • Iron"
+  },
   "sections": [
     {
       "type": "article",
@@ -90,6 +94,8 @@
       "kicker": "Local",
       "title": "Around Clarksville & Nashville",
       "intro": "Events in the next 30 days worth knowing about:",
+      "image_path": "assets/event_nashville.png",
+      "image_caption": "Spring event season hits its peak across Middle Tennessee.",
       "items": [
         {"name": "Rivers & Spires Festival", "date": "May 8–10", "location": "Downtown Clarksville — free", "url": "https://www.riversandspires.com/"},
         {"name": "Nashville Symphony — Beethoven's 9th", "date": "May 9, 7:30pm", "location": "Schermerhorn Symphony Center", "url": "https://www.nashvillesymphony.org/"},
@@ -135,14 +141,15 @@
       "kicker": "Chess",
       "title": "Opening of the Week",
       "opening_name": "The London System",
-      "intro": "A solid, strategically rich opening for White starting with 1.d4 followed by 2.Nf3 and 3.Bf4. Highly recommended for club players who want a 'system' approach with low theory burden but real winning chances. Played at the highest levels by Carlsen, Kamsky, and Grischuk. The London is sometimes dismissed as 'boring' but anyone who's played against it more than five times knows the venom under the surface — it's a positional setup that quietly steers the game into structures White understands better than Black.",
+      "intro": "A solid, strategically rich opening for White starting with 1.d4 followed by 2.Nf3 and 3.Bf4. Recommended for club players who want a 'system' approach with low theory burden but real winning chances. Sometimes dismissed as 'boring,' but anyone who's faced it more than a few times knows the venom under the surface — it quietly steers the game into structures White understands better than Black.",
+      "image_path": "assets/chess_london_system.png",
+      "image_caption": "Position after 1.d4 d5 2.Nf3 Nf6 3.Bf4 — the namesake bishop on f4.",
       "key_ideas": [
-        "Develop the dark-squared bishop early to f4 — it sits actively outside the pawn chain.",
-        "Standard pawn structure: d4, e3, c3 — solid, hard to break.",
-        "Plan against ...Bd6 trade: meet it with Bg3 or sometimes h3/Bh2 retreat.",
-        "Common middlegame: kingside attack with Ne5, f4, sometimes Qf3-Qh3.",
-        "Watch out for ...c5 strikes — know when to take, push d5, or maintain tension.",
-        "If Black plays a Slav-style ...c6 setup, know the pawn break b3-c4 plan."
+        "Develop the dark-squared bishop early to f4 — active outside the pawn chain.",
+        "Standard pawn structure: d4, e3, c3 — solid and hard to break.",
+        "Against ...Bd6 trade: meet with Bg3 or h3/Bh2 retreat.",
+        "Middlegame plan: kingside attack with Ne5, f4, sometimes Qf3-Qh3.",
+        "Watch ...c5 strikes — know when to take, push d5, or hold tension."
       ],
       "videos": [
         {"title": "The London System: Complete Opening Repertoire", "url": "https://www.youtube.com/watch?v=example1", "channel": "Hanging Pawns"},
@@ -155,7 +162,6 @@
       "type": "crossword",
       "kicker": "Puzzle",
       "title": "Crossword — Week of May 5",
-      "page_break_before": true,
       "intro": "15-word crossword (~6/10 difficulty). Answers in next week's issue.",
       "image_path": "assets/sample_crossword.png",
       "across": [
@@ -198,6 +204,8 @@
       "time": "35 min total",
       "calories": "~520 cal/serving",
       "intro": "Single sheet pan, one bowl for marinade, dinner on the table in 35 minutes. High protein, low effort, lots of vegetables, and the leftovers reheat well for next-day lunch. Bonus: you can swap the chicken for salmon (cut roast time to 12 min) or shrimp (8 min) without changing anything else.",
+      "image_path": "assets/recipe_sheetpan.png",
+      "image_caption": "Sheet-pan lemon-herb chicken with charred broccoli and rosemary potatoes.",
       "ingredients": [
         "2 boneless skinless chicken breasts (~6 oz each)",
         "1 lb baby potatoes, halved",
@@ -239,7 +247,6 @@
       "type": "flights",
       "kicker": "Travel",
       "title": "Cheap Flights — RDU → BNA / PHX",
-      "page_break_before": true,
       "intro": "Round-trip fares aligned with your Fort Campbell training-holiday windows. Anything below 25th-percentile of typical fare bands shown.",
       "items": [
         {"origin": "RDU", "destination": "BNA", "depart": "Fri May 22", "return_date": "Mon May 25", "price": "$148", "carrier": "Southwest", "link": "https://www.google.com/flights"},
@@ -253,6 +260,8 @@
       "kicker": "Garage",
       "title": "Tacoma Watch — White SR5 4WD < 5k mi, < $30k",
       "intro": "2020–2023 Toyota Tacoma SR5 4WD, white, under 5,000 miles, under $30,000. Tight criteria — most weeks will return zero or near-zero matches.",
+      "image_path": "assets/tacoma_sr5.png",
+      "image_caption": "Top match this week — 2022 SR5 4WD, Super White, Asheville NC.",
       "items": [
         {"year": "2022", "miles": "3,840", "price": "$28,995", "location": "Asheville, NC", "source": "AutoTrader", "url": "https://www.autotrader.com/"},
         {"year": "2021", "miles": "4,210", "price": "$29,500", "location": "Greensboro, NC", "source": "CarGurus", "url": "https://www.cargurus.com/"}
@@ -281,7 +290,6 @@
       "type": "alpaca_summary",
       "kicker": "Markets",
       "title": "Alpaca Paper Trading — Weekly Snapshot",
-      "page_break_before": true,
       "stats": {
         "portfolio_value": "$104,287.42",
         "day_change": "+$842.18",

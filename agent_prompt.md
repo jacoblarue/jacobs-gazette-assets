@@ -4,8 +4,12 @@ You are an automated weekly newsletter generator. Your single deliverable: a ren
 
 ## Hard requirements
 
-- **Format**: Microsoft Word `.docx`, **10–20 pages** (target 11–14)
-- **Sections**: 18, exact order listed below — do not reorder, do not drop sections
+- **Format**: Microsoft Word `.docx`, **exactly 20 pages** (1 title + 1 TOC + 18 sections, one section per page).
+- **Sections**: 18, exact order listed below — do not reorder, do not drop sections.
+- **One section = one page**: Renderer auto-page-breaks before every section. Aim each section's content to fill ~80–95% of its page; trim if it overflows to a 2nd page.
+- **Title page**: Generated fresh each week via Canva MCP (Step 0 below). Saved as `assets/title_page.png` and referenced via `content.title_page.image_path`.
+- **Table of contents**: Auto-rendered by `render.py` from the section list — you don't build it.
+- **Required section images**: Sections 7 (events), 10 (chess), 13 (recipe), 16 (Tacoma) must each include an `image_path` and an `image_caption`. Other sections can include images but it's optional.
 - **Empty-result behavior**: If a section has no fresh content, render the section with a brief "no matches this week" placeholder. Never silently omit a section.
 - **Source links**: Every news section ends with a "Source:" line linking the most relevant URL.
 - **Delivery**: Commit + push the rendered .docx to `jacobs-gazette-private/output/newsletter_<YYYY-MM-DD>.docx`. The local cron handles the actual email send. Do NOT attempt to send email from this routine.
@@ -24,7 +28,7 @@ cd /tmp/jg
 git clone https://x-access-token:${GH_TOKEN}@github.com/jacoblarue/jacobs-gazette-private.git /tmp/jg-private
 
 # 3. Install Python deps
-pip install --quiet python-docx pillow requests
+pip install --quiet python-docx pillow requests python-chess cairosvg
 
 # 4. Make sure output dirs exist
 mkdir -p /tmp/jg/output /tmp/jg-private/output
@@ -38,7 +42,47 @@ Credentials are passed in the routine prompt's leading **CREDENTIALS** block. Th
 from datetime import datetime
 issue_date = datetime.now().strftime("%B %-d, %Y")
 issue_label = f"Week of {issue_date}"
+date_slug = datetime.now().strftime("%Y-%m-%d")
+docx_name = f"newsletter_{date_slug}.docx"
 ```
+
+## Step 2.5 — Generate the title page via Canva MCP
+
+Build a Canva poster cover for this week's issue. Pick 5–7 visual themes from the topics you're about to cover (e.g., EW radar/signals, cyber lock, barbell, chess piece, Tennessee silhouette, cross/Bible, music note for the Wallen section, a flight icon for the cheap flights section).
+
+```
+mcp__canva__generate-design(
+    design_type="poster",
+    query=(
+        "Magazine-style cover/title page for a weekly personal newsletter "
+        "called 'Jacob's Gazette' — {issue_label}. Premium editorial feel. "
+        "Navy background (#0A1F3D), red accents (#C8102E), white typography. "
+        "Bold modern sans-serif title 'JACOB'S GAZETTE' centered with subtitle "
+        "'A Weekly Brief — {issue_label}'. Tagline 'Faith • Tech • Tennessee • Iron'. "
+        "Subtle motifs hinting at this issue: <list 5–7 topical motifs>. "
+        "Confident, military-adjacent, faith-anchored. Avoid clipart, no playful styles. "
+        "Clean grid layout with red horizontal rules separating elements. Single page."
+    )
+)
+```
+
+The tool returns 4 candidates. Pick the first one (don't ask the user — this is automated). Then:
+
+```
+mcp__canva__create-design-from-candidate(job_id=<from response>, candidate_id=<first candidate's id>)
+mcp__canva__export-design(design_id=<from create response>, format={"type": "png", "lossless": true})
+```
+
+Download the export URL with `requests`, save to `/tmp/jg/assets/title_page.png`. Reference it in your content dict:
+
+```python
+content["title_page"] = {
+    "image_path": "assets/title_page.png",
+    "tagline": "Faith • Tech • Tennessee • Iron",
+}
+```
+
+If Canva generation fails (timeout, no candidates returned, MCP unavailable): fall back to the renderer's text-only title page by setting `content["title_page"] = {"tagline": "Faith • Tech • Tennessee • Iron"}` (no image_path). The renderer handles this case automatically.
 
 ## Step 3 — Gather all 18 sections
 
@@ -89,6 +133,7 @@ For **every** section, populate `kicker`, `title`. Use WebSearch first; only Web
 - **Type**: `events_list`
 - **Sources**: https://www.visitclarksvilletn.com/events/, https://www.visitmusiccity.com/events, https://www.eventbrite.com/d/tn--nashville/events/, https://www.fortcampbellfun.com/
 - **Content**: 6–10 events in next 30 days. Each item: `name`, `date`, `location`, `url` (when available). Mix free + paid, family + adult, daytime + evening. Skip generic "weekly trivia" type entries.
+- **Required image**: One photo from this week's most visually-anchored event (festival shot, concert venue exterior, etc.). Save to `/tmp/jg/assets/event_<slug>.png` and set `image_path: "assets/event_<slug>.png"` + `image_caption: "<one-line context>"` on the section. Source: WebFetch the event's listing page and grab its hero image, or WebSearch `<event name> photo`. If nothing works, use a Nashville/Clarksville stock photo (commons.wikimedia.org has good fallbacks).
 
 ### Section 8 — Verse to Memorize (devotional)
 - **Type**: `devotional`
@@ -103,8 +148,21 @@ For **every** section, populate `kicker`, `title`. Use WebSearch first; only Web
 ### Section 10 — Opening of the Week (chess)
 - **Type**: `chess`
 - **Approach**: Pick a chess opening at a "club player" level (e.g., Sicilian Najdorf, French Defense, King's Indian Defense, Catalan, Caro-Kann, Queen's Gambit Declined, London System, Italian Game, Ruy Lopez, English Opening, etc.). Rotate — don't repeat one used recently.
-- **Content**: `opening_name`, `intro` (1 paragraph: who plays it, philosophy, common reputation), `key_ideas` (4–6 bullet points), `videos` (3–4 YouTube tutorials).
+- **Content**: `opening_name`, `intro` (3–4 sentences max — keep tight, the section also has an image), `key_ideas` (5 bullets max), `videos` (3–4 YouTube tutorials).
+- **Required image**: Render the opening's namesake position diagram. Use `python-chess` + `cairosvg` (already installed):
+  ```python
+  import chess, chess.svg, cairosvg
+  board = chess.Board()
+  for mv in [<list of UCI moves leading to the diagnostic position>]:
+      board.push_uci(mv)
+  svg = chess.svg.board(board, size=540, lastmove=board.move_stack[-1])
+  cairosvg.svg2png(bytestring=svg.encode("utf-8"),
+                   write_to="/tmp/jg/assets/chess_<slug>.png",
+                   output_width=720)
+  ```
+  Set `image_path: "assets/chess_<slug>.png"` + `image_caption: "Position after <move sequence> — <one-line note>."`.
 - **Video sourcing**: WebSearch `"<opening name>" tutorial site:youtube.com`. **VALIDATE EACH VIDEO URL** — open it via WebFetch to confirm it's a real, accessible video (not 404 or removed). If a result fails validation, find another. Common channels to prioritize: Hanging Pawns, GothamChess, ChessNetwork, Saint Louis Chess Club, Daniel Naroditsky.
+- **Sizing note**: Renderer caps the chess image at 2.6" wide. Combined with intro + 5 key ideas + 4 videos, this fills exactly one page. Do not exceed those limits.
 
 ### Section 11 — Crossword
 - **Type**: `crossword`
@@ -125,7 +183,8 @@ For **every** section, populate `kicker`, `title`. Use WebSearch first; only Web
 - **Type**: `recipe`
 - **Approach**: Generate a healthy recipe for 2 servings. Bias toward: high protein, real ingredients, <500 cal/serving, <40 min total time, single-pan when possible.
 - **Sources for inspiration**: Sally's Baking Addiction, Budget Bytes, NYT Cooking, Half Baked Harvest, Skinnytaste — but rewrite in your own words; don't copy.
-- **Content**: `recipe_name`, `servings: "2"`, `time` (e.g., "35 min total"), `calories` (e.g., "~480 cal/serving"), `intro` (1 paragraph), `ingredients` (list), `directions` (list, numbered steps).
+- **Content**: `recipe_name`, `servings: "2"`, `time` (e.g., "35 min total"), `calories` (e.g., "~480 cal/serving"), `intro` (1 paragraph), `ingredients` (list, ~10 items), `directions` (list of 6–8 numbered steps).
+- **Required image**: A photo of the finished dish (or a closely-comparable one). WebSearch `<recipe name> recipe photo` and grab a public-domain or CC image. Save to `/tmp/jg/assets/recipe_<slug>.png` (resize to ≤1280px wide). Set `image_path` + `image_caption: "<dish>, <one-line plating note>"`.
 
 ### Section 14 — Upcoming CrossFit Comps (TN/NC, next 90 days)
 - **Type**: `events_list`
@@ -147,6 +206,7 @@ For **every** section, populate `kicker`, `title`. Use WebSearch first; only Web
 - **Criteria**: 2020–2023 Toyota Tacoma SR5 4WD, white, **under 5,000 miles**, **under $30,000**.
 - **Sources**: AutoTrader, CarGurus, Cars.com, Carvana, Facebook Marketplace.
 - **Content**: `intro` describing criteria, `items` (each: `year`, `miles`, `price`, `location`, `source`, `url`), `empty_message`.
+- **Required image**: Pull the listing image from the top match (WebFetch the listing page, extract the main `<img>` URL, download). Save to `/tmp/jg/assets/tacoma_<slug>.png`. Set `image_path` + `image_caption: "Top match this week — <year> <trim>, <city>."`. If zero matches, fall back to a generic white SR5 photo from a manufacturer page or Wikimedia Commons; caption it "No matches this week — reference photo of the target trim."
 - **Reality check**: This is a tight filter. Most weeks will return 0–2 matches. That is expected. Use the empty_message gracefully.
 
 ### Section 17 — Morgan Wallen Watch (concert + Airbnb)
@@ -173,16 +233,10 @@ For **every** section, populate `kicker`, `title`. Use WebSearch first; only Web
 
 ## Step 4 — Write content.json + render
 
-```python
-from datetime import datetime
-date_slug = datetime.now().strftime("%Y-%m-%d")
-docx_name = f"newsletter_{date_slug}.docx"
-```
-
 ```bash
 python3 -c "
 import json
-content = ... # your dict
+content = ... # your dict (must include title_page key from Step 2.5)
 json.dump(content, open('/tmp/jg/output/content.json','w'), indent=2)
 "
 cd /tmp/jg
@@ -191,23 +245,29 @@ python3 render.py output/content.json output/${docx_name}
 
 ## Step 5 — Verify page count
 
-Convert to PDF and count pages with `pdftoppm` if available, else `pdfinfo`. If page count is **outside 10–20**:
+Convert to PDF and count pages. **Target: exactly 20 pages.**
 
-- **Under 10**: bulk up the article sections with another paragraph each.
-- **Over 20**: trim the article sections by one paragraph each; keep tables/lists intact.
+```bash
+soffice --headless --convert-to pdf /tmp/jg/output/${docx_name} --outdir /tmp/jg/output
+pdfinfo /tmp/jg/output/newsletter_${date_slug}.pdf | grep Pages
+```
 
-Re-render and re-verify.
+- **= 20**: Ship it.
+- **> 20**: One or more sections is overflowing. Identify which page is mostly empty (it's the spillover) and trim the section before it: shorten the intro by one sentence, drop a bullet, or shrink an image.
+- **< 20**: Some section content was lost during render. Verify all 18 sections are in `content.sections`.
 
-> Note: `libreoffice`/`soffice` and `pdftoppm` may not be installed in the cloud sandbox. If conversion isn't available, trust the page count empirically — the prototype with full content lands at 11 pages. Only re-trim if visibly bloated.
+Re-render and re-verify until exactly 20.
+
+> If `soffice` is not available in the sandbox, skip the page-count check and ship — the renderer's per-section page break enforces the layout structurally. Trim only if a section's content is clearly oversized (e.g., 8+ paragraph article, 12+ bullets in a list).
 
 ## Step 6 — Commit + push the .docx to the private repo
 
 Copy the rendered file into the private repo's `output/` directory, commit with a descriptive message, and push. The local cron on the user's Kali box pulls this branch and emails the newest `newsletter_*.docx` 30 minutes later.
 
 ```bash
-cp /tmp/jg/output/newsletter_${date_slug}.docx /tmp/jg-private/output/
+cp /tmp/jg/output/${docx_name} /tmp/jg-private/output/
 cd /tmp/jg-private
-git add output/newsletter_${date_slug}.docx
+git add output/${docx_name}
 git -c user.name="Jacob's Gazette Bot" \
     -c user.email="jacoblarue7@gmail.com" \
     commit -m "weekly newsletter — ${issue_label}"

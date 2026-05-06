@@ -13,7 +13,7 @@ from pathlib import Path
 from docx import Document
 from docx.enum.section import WD_SECTION
 from docx.enum.table import WD_ALIGN_VERTICAL
-from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_TAB_ALIGNMENT
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK, WD_TAB_ALIGNMENT, WD_TAB_LEADER
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Cm, Inches, Pt, RGBColor
@@ -97,14 +97,26 @@ def _add_hyperlink(paragraph, url: str, text: str, *, size=11, color=NAVY, itali
 
 
 def _section_heading(doc: Document, title: str, kicker: str | None = None) -> None:
-    """A red kicker line + navy section title with red underline."""
+    """A red kicker line + navy section title with red underline.
+    Consumes a pending page break (set by build_newsletter between sections) by
+    inlining it as a run, which avoids the orphan-paragraph blank-page bug from
+    doc.add_page_break()."""
+    pending_break = getattr(doc, "_jg_section_break_pending", False)
+
     if kicker:
         kp = doc.add_paragraph()
+        if pending_break:
+            kp.add_run().add_break(WD_BREAK.PAGE)
+            doc._jg_section_break_pending = False
+            pending_break = False
         kp.paragraph_format.space_before = Pt(14)
         kp.paragraph_format.space_after = Pt(0)
         _styled_run(kp, kicker.upper(), bold=True, size=9, color=RED, font="Calibri")
 
     p = doc.add_paragraph()
+    if pending_break:
+        p.add_run().add_break(WD_BREAK.PAGE)
+        doc._jg_section_break_pending = False
     p.paragraph_format.space_before = Pt(0)
     p.paragraph_format.space_after = Pt(6)
     _styled_run(p, title, bold=True, size=16, color=NAVY, font="Calibri")
@@ -129,6 +141,27 @@ def _bullet(doc: Document, text: str, *, size=12) -> None:
         _styled_run(p, text, size=size)
     else:
         p.runs[0].text = text
+
+
+def _maybe_image(doc: Document, image_path: str | None, *, width_in: float = 4.5, caption: str | None = None) -> None:
+    """Insert a centered image with optional caption. Silently skips if path missing."""
+    if not image_path:
+        return
+    ip = Path(image_path)
+    if not ip.is_absolute():
+        ip = ASSETS.parent / image_path
+    if not ip.exists():
+        return
+    pp = doc.add_paragraph()
+    pp.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    pp.paragraph_format.space_before = Pt(4)
+    pp.paragraph_format.space_after = Pt(2)
+    pp.add_run().add_picture(str(ip), width=Inches(width_in))
+    if caption:
+        cp = doc.add_paragraph()
+        cp.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        cp.paragraph_format.space_after = Pt(6)
+        _styled_run(cp, caption, italic=True, size=9, color=MUTED_GRAY)
 
 
 def _source_line(doc: Document, source_text: str, source_url: str | None = None) -> None:
@@ -157,6 +190,7 @@ def render_events_list(doc: Document, section: dict) -> None:
     _section_heading(doc, section["title"], kicker=section.get("kicker"))
     if section.get("intro"):
         _body_paragraph(doc, section["intro"])
+    _maybe_image(doc, section.get("image_path"), width_in=4.5, caption=section.get("image_caption"))
     for item in section.get("items", []):
         p = doc.add_paragraph(style="List Bullet")
         p.paragraph_format.space_after = Pt(2)
@@ -244,6 +278,7 @@ def render_chess(doc: Document, section: dict) -> None:
     _styled_run(p, section["opening_name"], bold=True, size=12, color=RED)
     if section.get("intro"):
         _body_paragraph(doc, section["intro"])
+    _maybe_image(doc, section.get("image_path"), width_in=2.6, caption=section.get("image_caption"))
     if section.get("key_ideas"):
         for idea in section["key_ideas"]:
             _bullet(doc, idea)
@@ -279,6 +314,7 @@ def render_recipe(doc: Document, section: dict) -> None:
         _styled_run(mp, " • ".join(meta_bits), italic=True, size=10, color=MUTED_GRAY)
     if section.get("intro"):
         _body_paragraph(doc, section["intro"])
+    _maybe_image(doc, section.get("image_path"), width_in=3.6, caption=section.get("image_caption"))
 
     table = doc.add_table(rows=1, cols=2)
     table.autofit = True
@@ -440,6 +476,7 @@ def render_vehicle_listings(doc: Document, section: dict) -> None:
     _section_heading(doc, section["title"], kicker=section.get("kicker"))
     if section.get("intro"):
         _body_paragraph(doc, section["intro"])
+    _maybe_image(doc, section.get("image_path"), width_in=4.5, caption=section.get("image_caption"))
     items = section.get("items", [])
     if not items:
         _body_paragraph(doc, section.get("empty_message", "No matches this week — will keep watching."), italic=True)
@@ -569,12 +606,84 @@ def render_alpaca_summary(doc: Document, section: dict) -> None:
             _bullet(doc, a, size=11)
 
 
+# ---------- Title page + TOC ----------
+
+
+def render_title_page(doc: Document, content: dict) -> None:
+    """Render the cover page. Uses a full-bleed image if title_page.image_path is set,
+    otherwise falls back to a styled text-only cover."""
+    title_meta = content.get("title_page") or {}
+    image_path = title_meta.get("image_path")
+    if image_path:
+        ip = Path(image_path)
+        if not ip.is_absolute():
+            ip = ASSETS.parent / image_path
+        if ip.exists():
+            p = doc.add_paragraph()
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            p.paragraph_format.space_before = Pt(0)
+            p.paragraph_format.space_after = Pt(0)
+            p.paragraph_format.line_spacing = 1.0
+            # Size by height so any aspect ratio fits within the page content area.
+            # Letter is 11" tall; with 1.4" top + 0.8" bottom margins, usable ≈ 8.8".
+            run = p.add_run()
+            run.add_picture(str(ip), height=Inches(8.4))
+            # Page break in the SAME paragraph — avoids a stray empty page from
+            # add_page_break() creating its own paragraph after the cover image.
+            run.add_break(WD_BREAK.PAGE)
+            return
+    # Text fallback
+    for _ in range(4):
+        doc.add_paragraph()
+    title_p = doc.add_paragraph()
+    title_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    title_p.paragraph_format.space_after = Pt(8)
+    _styled_run(title_p, "JACOB'S GAZETTE", bold=True, size=44, color=NAVY)
+    sub = doc.add_paragraph()
+    sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    sub.paragraph_format.space_after = Pt(20)
+    _styled_run(sub, content.get("issue_label", "").upper(), bold=True, size=14, color=RED)
+    if title_meta.get("tagline"):
+        tag = doc.add_paragraph()
+        tag.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        _styled_run(tag, title_meta["tagline"], italic=True, size=14, color=BODY_GRAY)
+
+
+def render_toc(doc: Document, content: dict) -> None:
+    """Static table of contents. Page numbering assumes title page = 1, TOC = 2,
+    sections start at page 3 with one section per page."""
+    h = doc.add_paragraph()
+    h.paragraph_format.space_before = Pt(12)
+    h.paragraph_format.space_after = Pt(10)
+    _styled_run(h, "Table of Contents", bold=True, size=26, color=NAVY)
+    _set_paragraph_border(h, position="bottom", color_hex="C8102E", sz=18)
+
+    sections = content.get("sections", [])
+    for idx, s in enumerate(sections):
+        page_num = idx + 3
+        line = doc.add_paragraph()
+        line.paragraph_format.space_after = Pt(4)
+        line.paragraph_format.line_spacing = 1.4
+        # Right-aligned tab stop with dot leader for the page number
+        ts = line.paragraph_format.tab_stops
+        ts.add_tab_stop(Inches(6.7), WD_TAB_ALIGNMENT.RIGHT, WD_TAB_LEADER.DOTS)
+        _styled_run(line, f"{idx + 1:>2}. ", bold=True, size=12, color=RED)
+        _styled_run(line, s.get("title", "Untitled"), size=12, color=BODY_GRAY)
+        line.add_run("\t")
+        _styled_run(line, str(page_num), bold=True, size=12, color=NAVY)
+
+
 # ---------- Header / footer / chrome ----------
 
 
 def _build_header(doc: Document, issue_label: str) -> None:
     section = doc.sections[0]
-    section.different_first_page_header_footer = False
+    # Title page (page 1) gets no header/footer; all later pages get the masthead.
+    section.different_first_page_header_footer = True
+    fp_h = section.first_page_header
+    fp_h.is_linked_to_previous = False
+    fp_f = section.first_page_footer
+    fp_f.is_linked_to_previous = False
 
     header = section.header
     header.is_linked_to_previous = False
@@ -669,15 +778,26 @@ def build_newsletter(content: dict, output_path: Path) -> None:
     _build_header(doc, content.get("issue_label", ""))
     _build_footer(doc)
 
+    # Page 1: title page (no header/footer — first-page-different is set in _build_header)
+    # render_title_page emits its own trailing page break inside the image paragraph,
+    # so don't add another one here (it would create a blank page 2).
+    render_title_page(doc, content)
+
+    # Page 2: table of contents
+    render_toc(doc, content)
+
+    # Pages 3+: one section per page. The first section needs a leading break;
+    # subsequent breaks are emitted by _section_heading via the pending-break flag.
+    doc._jg_section_break_pending = True
     for section in content.get("sections", []):
-        if section.get("page_break_before"):
-            doc.add_page_break()
         renderer = RENDERERS.get(section["type"])
         if renderer:
             renderer(doc, section)
         else:
             _section_heading(doc, section.get("title", "Untitled"))
             _body_paragraph(doc, f"[Unknown section type: {section['type']}]")
+        # Mark a page break pending for the next section's heading to consume.
+        doc._jg_section_break_pending = True
 
     doc.save(str(output_path))
 
