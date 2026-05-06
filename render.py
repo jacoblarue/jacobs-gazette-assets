@@ -656,6 +656,11 @@ def render_title_page(doc: Document, content: dict) -> None:
         tag = doc.add_paragraph()
         tag.alignment = WD_ALIGN_PARAGRAPH.CENTER
         _styled_run(tag, title_meta["tagline"], italic=True, size=14, color=BODY_GRAY)
+    # Force a page break after the text-only cover so the TOC starts fresh on page 2
+    pb = doc.add_paragraph()
+    pb.paragraph_format.space_before = Pt(0)
+    pb.paragraph_format.space_after = Pt(0)
+    pb.add_run().add_break(WD_BREAK.PAGE)
 
 
 def render_toc(doc: Document, content: dict) -> None:

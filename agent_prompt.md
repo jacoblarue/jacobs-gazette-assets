@@ -6,7 +6,14 @@ You are an automated weekly newsletter generator. Your single deliverable: a ren
 
 - **Format**: Microsoft Word `.docx`, **exactly 20 pages** (1 title + 1 TOC + 18 sections, one section per page).
 - **Sections**: 18, exact order listed below — do not reorder, do not drop sections.
-- **One section = one page**: Renderer auto-page-breaks before every section. Aim each section's content to fill ~80–95% of its page; trim if it overflows to a 2nd page.
+- **One section = one page**: Renderer auto-page-breaks before every section. **Hard cap: each section MUST fit on exactly one page.** If `pdfinfo` shows >20 pages after render, identify the spilled section(s) and TRIM aggressively (drop a paragraph, drop a bullet, shorten the intro by a sentence, shrink an image) — then re-render. Repeat until exactly 20.
+- **Per-section budgets** (treat as ceilings):
+  - Articles (sections 1, 2, 4, 5, 6): 3 paragraphs MAX, ~120 words each
+  - Devotional (8): 1 verse + 1 reflection paragraph (~150 words)
+  - Lifehack (12): hack_name + 3 paragraphs MAX
+  - Recipe (13): 1 intro paragraph + ingredients + 5 directions max
+  - Events lists (7, 14): 8–10 items
+  - Vehicle/concert (16, 17): keep intros to 1–2 sentences
 - **Title page**: Generated fresh each week via Canva MCP (Step 0 below). Saved as `assets/title_page.png` and referenced via `content.title_page.image_path`.
 - **Table of contents**: Auto-rendered by `render.py` from the section list — you don't build it.
 - **Required section images**: Sections 7 (events), 10 (chess), 13 (recipe), 16 (Tacoma) must each include an `image_path` and an `image_caption`. Other sections can include images but it's optional.
@@ -133,7 +140,7 @@ For **every** section, populate `kicker`, `title`. Use WebSearch first; only Web
 - **Type**: `events_list`
 - **Sources**: https://www.visitclarksvilletn.com/events/, https://www.visitmusiccity.com/events, https://www.eventbrite.com/d/tn--nashville/events/, https://www.fortcampbellfun.com/
 - **Content**: 6–10 events in next 30 days. Each item: `name`, `date`, `location`, `url` (when available). Mix free + paid, family + adult, daytime + evening. Skip generic "weekly trivia" type entries.
-- **Required image**: One photo from this week's most visually-anchored event (festival shot, concert venue exterior, etc.). Save to `/tmp/jg/assets/event_<slug>.png` and set `image_path: "assets/event_<slug>.png"` + `image_caption: "<one-line context>"` on the section. Source: WebFetch the event's listing page and grab its hero image, or WebSearch `<event name> photo`. If nothing works, use a Nashville/Clarksville stock photo (commons.wikimedia.org has good fallbacks).
+- **Required image**: One photo from this week's most visually-anchored event (festival shot, concert venue exterior, etc.). Save to `/tmp/jg/assets/event_<slug>.png` and set `image_path: "assets/event_<slug>.png"` + `image_caption: "<one-line context>"` on the section. **Primary source: Wikimedia Commons** — search `https://commons.wikimedia.org/wiki/Special:Search?search=<query>&go=Go` (e.g. "Nashville Lower Broadway"), pick a result, then download via `https://commons.wikimedia.org/wiki/Special:FilePath/<Filename>?width=1280`. **CRITICAL: convert to a real PNG before embedding** — Commons returns JPEG content, but python-docx detects from bytes (not extension), so pipe through Pillow: `from PIL import Image; Image.open('raw.jpg').convert('RGB').save('event_<slug>.png','PNG',optimize=True)`. Never just `.jpg → .png` rename. Fallbacks if Commons fails: WebFetch the event page hero image, or skip the image entirely.
 
 ### Section 8 — Verse to Memorize (devotional)
 - **Type**: `devotional`
@@ -174,17 +181,19 @@ For **every** section, populate `kicker`, `title`. Use WebSearch first; only Web
   5. Build the section with `image_path: "/tmp/jg/output/crossword.png"`, `intro` (one line), `across`, `down`.
   6. Set `page_break_before: true` on this section.
 
-### Section 12 — Trick of the Week (life-hack)
+### Section 12 — Financial Life Hacks (lifehack)
 - **Type**: `lifehack`
-- **Approach**: Generate. Topics: productivity, fitness, kitchen, finance, parenting, time management, decluttering, sleep, learning. Rotate themes. **Avoid clichés** — no "drink water" or "make your bed."
-- **Content**: `hack_name` (catchy short title), 2–3 paragraphs. Include the *why* (mechanism / underlying reason it works), not just *what*.
+- **Title**: "Financial Life Hacks" (kicker: "Money")
+- **Approach**: Generate a money-saving or money-making lifehack each week. Rotate topics: bill negotiation, retention/cancellation tactics, credit-card optimization, retirement-account hacks, tax timing, insurance shopping, refinancing, subscription audits, HSA usage, employer-benefit underutilization, paycheck math, side-income tactics. **Always grounded in real consumer-finance reporting** (Consumer Reports, NerdWallet, WSJ, NYT, r/personalfinance) — cite at least one source-style reference inline.
+- **Content**: `hack_name` (specific actionable title with a number/timeframe when possible — e.g., "The 15-minute retention call that cuts your bill 20–40%"), 2–3 paragraphs MAX. Cover: (1) the mechanic (what to do, magic phrase, script), (2) the math/why it works (industry incentive structure, typical savings range over a defined period), (3) caveats/repeat cadence.
+- **First-issue seed (if rotating from scratch)**: the retention-desk call for phone/internet bills. Magic phrase: "I'd like to cancel my service" routes you to the retention department. Typical published savings: $20–$60/mo on phone, $15–$40/mo on internet, totaling $360–$1,440 over 24 months. Re-run the script every 12 months. Citable: Consumer Reports, NerdWallet, WSJ.
 
 ### Section 13 — Meal of the Week (recipe)
 - **Type**: `recipe`
 - **Approach**: Generate a healthy recipe for 2 servings. Bias toward: high protein, real ingredients, <500 cal/serving, <40 min total time, single-pan when possible.
 - **Sources for inspiration**: Sally's Baking Addiction, Budget Bytes, NYT Cooking, Half Baked Harvest, Skinnytaste — but rewrite in your own words; don't copy.
 - **Content**: `recipe_name`, `servings: "2"`, `time` (e.g., "35 min total"), `calories` (e.g., "~480 cal/serving"), `intro` (1 paragraph), `ingredients` (list, ~10 items), `directions` (list of 6–8 numbered steps).
-- **Required image**: A photo of the finished dish (or a closely-comparable one). WebSearch `<recipe name> recipe photo` and grab a public-domain or CC image. Save to `/tmp/jg/assets/recipe_<slug>.png` (resize to ≤1280px wide). Set `image_path` + `image_caption: "<dish>, <one-line plating note>"`.
+- **Required image**: A photo of the finished dish. **Primary source: Wikimedia Commons** — search the relevant category (e.g. `Category:Roast_chicken`, `Category:Salmon_dishes`, `Category:Pasta_dishes`) and pick one with the dish plated. Download via `https://commons.wikimedia.org/wiki/Special:FilePath/<Filename>?width=1280` then **convert through Pillow to a real PNG** (see image notes in Section 7). Save as `/tmp/jg/assets/recipe_<slug>.png`. Set `image_path` + `image_caption: "<dish>, <one-line plating note>"`.
 
 ### Section 14 — Upcoming CrossFit Comps (TN/NC, next 90 days)
 - **Type**: `events_list`
@@ -206,7 +215,7 @@ For **every** section, populate `kicker`, `title`. Use WebSearch first; only Web
 - **Criteria**: 2020–2023 Toyota Tacoma SR5 4WD, white, **under 5,000 miles**, **under $30,000**.
 - **Sources**: AutoTrader, CarGurus, Cars.com, Carvana, Facebook Marketplace.
 - **Content**: `intro` describing criteria, `items` (each: `year`, `miles`, `price`, `location`, `source`, `url`), `empty_message`.
-- **Required image**: Pull the listing image from the top match (WebFetch the listing page, extract the main `<img>` URL, download). Save to `/tmp/jg/assets/tacoma_<slug>.png`. Set `image_path` + `image_caption: "Top match this week — <year> <trim>, <city>."`. If zero matches, fall back to a generic white SR5 photo from a manufacturer page or Wikimedia Commons; caption it "No matches this week — reference photo of the target trim."
+- **Required image**: Pull the listing image from the top match (WebFetch the listing page, extract the main `<img>` URL, download). Save to `/tmp/jg/assets/tacoma_<slug>.png` and **convert through Pillow to a real PNG** (see image notes in Section 7). Set `image_path` + `image_caption: "Top match this week — <year> <trim>, <city>."`. If zero matches, fall back to a Wikimedia Commons white Tacoma photo from `Category:White_Toyota_pickup_trucks` (e.g. `2026 Toyota Tacoma SIAM 2026.JPG`) — same Commons download + Pillow conversion. Caption: "Reference photo of the target trim — clean white Tacoma."
 - **Reality check**: This is a tight filter. Most weeks will return 0–2 matches. That is expected. Use the empty_message gracefully.
 
 ### Section 17 — Morgan Wallen Watch (concert + Airbnb)
