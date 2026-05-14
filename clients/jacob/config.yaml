@@ -1,0 +1,118 @@
+# Jacob's Gazette — client config (also serves as the schema reference)
+# Anything missing here falls back to defaults in render.py.
+
+client:
+  slug: jacob                           # filesystem slug; one word, lowercase
+  recipient_email: jacoblarue7@gmail.com
+
+newsletter:
+  title: "JACOB'S GAZETTE"              # appears on title page + footer
+  subtitle: "A WEEKLY BRIEF"            # appears in header band
+  tagline: "Faith • Tech • Tennessee • Iron"
+
+schedule:
+  cloud_cron_utc: "7 22 * * 4"          # Thu 5:07pm CDT — when cloud routine fires
+  local_send_local_time: "19:00"        # 24h local time for SMTP send (Thu 7pm CT)
+  timezone: "America/Chicago"
+
+branding:
+  primary_color: "0A1F3D"               # navy — hex without #
+  accent_color:  "C8102E"               # red
+
+location:
+  city: Clarksville
+  state: TN
+  region: "Tennessee/Kentucky"
+
+# Sections fire in array order. id maps to a known renderer; enabled=false skips
+# the section entirely (TOC adjusts; no placeholder page).
+sections:
+  - id: ew_brief
+    enabled: true
+  - id: cyber_roundup
+    enabled: true
+  - id: home_pentest
+    enabled: true
+    config:
+      target_router: 10.0.0.1           # Kali must be on the same LAN
+  - id: crossfit_news
+    enabled: true
+  - id: college_football
+    enabled: true
+    config:
+      team: ""                          # "" = general coverage; e.g. "Tennessee Volunteers"
+  - id: good_news
+    enabled: true
+  - id: local_events
+    enabled: true
+    config:
+      cities: ["Clarksville TN", "Nashville TN"]
+      sources:
+        - "https://www.visitclarksvilletn.com/events/"
+        - "https://www.visitmusiccity.com/events"
+        - "https://www.eventbrite.com/d/tn--nashville/events/"
+  - id: devotional
+    enabled: true
+    config:
+      translation: ESV
+  - id: strava
+    enabled: true                       # placeholder for v1
+  - id: chess_opening
+    enabled: true
+  - id: crossword
+    enabled: true
+  - id: lifehack
+    enabled: true
+    config:
+      category: financial               # financial | productivity | health | parenting
+  - id: recipe
+    enabled: true
+    config:
+      style: high_protein
+      max_calories_per_serving: 500
+      max_total_minutes: 40
+      servings: 2
+  - id: crossfit_comps
+    enabled: true
+    config:
+      regions: ["TN", "NC"]
+  - id: flights
+    enabled: true
+    config:
+      origin: RDU
+      destinations: ["BNA", "PHX"]
+      anchor: "fort campbell training holidays"
+  - id: vehicle_watch
+    enabled: true
+    config:
+      make: Toyota
+      model: Tacoma
+      trim: SR5
+      drivetrain: 4WD
+      color: white
+      year_min: 2020
+      year_max: 2023
+      max_price_usd: 30000
+      max_miles: 5000
+  - id: concert_watch
+    enabled: true
+    config:
+      artist: "Morgan Wallen"
+      home_metro: "Raleigh, NC"
+      max_distance_miles: 50
+      airbnb_min_rating: 4.6
+      airbnb_radius_miles: 10
+      airbnb_bedrooms: 2
+  - id: alpaca_paper
+    enabled: true
+
+credentials:
+  # Paths (relative to $HOME). Single shared service Gmail for all clients;
+  # each client's Alpaca keys are isolated to their own directory.
+  gmail_app_password: ".config/gmail-app-password"
+  github_token:       ".config/gh-pat"
+  alpaca_keys:        "jacobs-gazette/clients/jacob/alpaca-keys"
+
+billing:
+  monthly_price_usd: 0                  # founder/free; paying clients get a real number
+  status: active                        # active | paused | cancelled

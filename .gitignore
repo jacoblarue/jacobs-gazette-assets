@@ -21,3 +21,13 @@ private/
 .idea/
 *.swp
 STATUS.md
+
+# Runtime state — per-client logs regenerated each run
+clients/**/.render_log
+clients/**/.sent_log
+
+# LibreOffice lock files
+.~lock.*
+
+# Backup files
+*.v1-jacob-backup
