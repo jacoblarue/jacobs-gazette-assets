@@ -12,7 +12,7 @@ newsletter:
 
 schedule:
   cloud_cron_utc: "7 22 * * 4"          # Thu 5:07pm CDT — when cloud routine fires
-  local_send_local_time: "19:00"        # 24h local time for SMTP send (Thu 7pm CT)
+  local_send_local_time: "19:01"        # 24h local time for SMTP send (Thu 7:01pm CT)
   timezone: "America/Chicago"
 
 branding:
