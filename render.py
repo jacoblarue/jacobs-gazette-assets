@@ -1,10 +1,13 @@
-"""Jacob's Gazette — Word document renderer.
+"""Newsletter renderer.
 
-Takes a structured content dict and produces a styled .docx newsletter.
+Takes a structured content dict + an optional client config and produces a
+styled .docx. Defaults preserve Jacob's Gazette branding so the original cron
+keeps working without flags.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from datetime import datetime
@@ -18,6 +21,11 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Cm, Inches, Pt, RGBColor
 
+try:
+    import yaml  # PyYAML — only required if --config is passed
+except ImportError:
+    yaml = None
+
 NAVY = RGBColor(0x0A, 0x1F, 0x3D)
 RED = RGBColor(0xC8, 0x10, 0x2E)
 WHITE = RGBColor(0xFF, 0xFF, 0xFF)
@@ -25,6 +33,50 @@ BODY_GRAY = RGBColor(0x22, 0x22, 0x22)
 MUTED_GRAY = RGBColor(0x66, 0x66, 0x66)
 
 ASSETS = Path(__file__).parent / "assets"
+
+# Branding — overridable via apply_config(). Globals so the existing helper
+# functions (which reference NAVY/RED directly) don't need rewiring.
+TITLE_TEXT = "JACOB'S GAZETTE"
+SUBTITLE_TEXT = "A WEEKLY BRIEF"
+FOOTER_TEXT = "Jacob's Gazette"
+DEFAULT_TAGLINE = "Faith • Tech • Tennessee • Iron"
+
+
+def _hex_to_rgb(hex_str: str) -> RGBColor:
+    h = hex_str.lstrip("#")
+    return RGBColor(int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16))
+
+
+def _hex(color: RGBColor) -> str:
+    """RGBColor → 6-char uppercase hex (no #), for OOXML attributes."""
+    return f"{color[0]:02X}{color[1]:02X}{color[2]:02X}"
+
+
+def apply_config(config: dict | None) -> None:
+    """Override branding globals from a loaded config.yaml dict."""
+    global NAVY, RED, ASSETS, TITLE_TEXT, SUBTITLE_TEXT, FOOTER_TEXT, DEFAULT_TAGLINE
+    if not config:
+        return
+    nl = config.get("newsletter", {}) or {}
+    br = config.get("branding", {}) or {}
+    cl = config.get("client", {}) or {}
+    if nl.get("title"):
+        TITLE_TEXT = nl["title"]
+        FOOTER_TEXT = nl["title"].title().replace("'S", "'s")
+    if nl.get("subtitle"):
+        SUBTITLE_TEXT = nl["subtitle"]
+    if nl.get("tagline"):
+        DEFAULT_TAGLINE = nl["tagline"]
+    if br.get("primary_color"):
+        NAVY = _hex_to_rgb(br["primary_color"])
+    if br.get("accent_color"):
+        RED = _hex_to_rgb(br["accent_color"])
+    # Per-client assets dir takes priority; fall back to default if missing.
+    slug = cl.get("slug")
+    if slug:
+        candidate = Path(__file__).parent / "clients" / slug / "assets"
+        if candidate.exists():
+            ASSETS = candidate
 
 
 def _set_cell_shading(cell, hex_color: str) -> None:
@@ -120,7 +172,7 @@ def _section_heading(doc: Document, title: str, kicker: str | None = None) -> No
     p.paragraph_format.space_before = Pt(0)
     p.paragraph_format.space_after = Pt(6)
     _styled_run(p, title, bold=True, size=16, color=NAVY, font="Calibri")
-    _set_paragraph_border(p, position="bottom", color_hex="C8102E", sz=12)
+    _set_paragraph_border(p, position="bottom", color_hex=_hex(RED), sz=12)
 
 
 def _body_paragraph(doc: Document, text: str, *, italic=False, size=12) -> None:
@@ -143,20 +195,25 @@ def _bullet(doc: Document, text: str, *, size=12) -> None:
         p.runs[0].text = text
 
 
-def _maybe_image(doc: Document, image_path: str | None, *, width_in: float = 4.5, caption: str | None = None) -> None:
-    """Insert a centered image with optional caption. Silently skips if path missing."""
+def _maybe_image(doc: Document, image_path: str | None, *, width_in: float = 4.5, max_height_in: float | None = None, caption: str | None = None) -> None:
+    """Insert a centered image with optional caption. Silently skips if path missing.
+    If max_height_in is set, the image is constrained by height instead of width so
+    portrait-ratio photos never overflow the page."""
     if not image_path:
         return
     ip = Path(image_path)
     if not ip.is_absolute():
-        ip = ASSETS.parent / image_path
+        ip = Path(__file__).parent / image_path
     if not ip.exists():
         return
     pp = doc.add_paragraph()
     pp.alignment = WD_ALIGN_PARAGRAPH.CENTER
     pp.paragraph_format.space_before = Pt(4)
     pp.paragraph_format.space_after = Pt(2)
-    pp.add_run().add_picture(str(ip), width=Inches(width_in))
+    if max_height_in is not None:
+        pp.add_run().add_picture(str(ip), height=Inches(max_height_in))
+    else:
+        pp.add_run().add_picture(str(ip), width=Inches(width_in))
     if caption:
         cp = doc.add_paragraph()
         cp.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -180,8 +237,16 @@ def _source_line(doc: Document, source_text: str, source_url: str | None = None)
 
 def render_article(doc: Document, section: dict) -> None:
     _section_heading(doc, section["title"], kicker=section.get("kicker"))
-    for para in section.get("paragraphs", []):
-        _body_paragraph(doc, para)
+    paras = section.get("paragraphs") or section.get("body", [])
+    for para in paras:
+        if isinstance(para, str) and para.startswith("Source:"):
+            raw = para[7:].strip()
+            if raw.startswith("http"):
+                _source_line(doc, raw, raw)
+            else:
+                _source_line(doc, raw)
+        else:
+            _body_paragraph(doc, para)
     if section.get("source"):
         src = section["source"]
         _source_line(doc, src.get("text", "Read more"), src.get("url"))
@@ -218,17 +283,17 @@ def render_strava(doc: Document, section: dict) -> None:
     if stats:
         table = doc.add_table(rows=2, cols=4)
         table.autofit = False
-        labels = ["Activities", "Distance", "Time", "Elevation"]
+        labels = ["Runs", "Miles", "Time", "Avg Pace"]
         values = [
-            str(stats.get("activities", "—")),
-            stats.get("distance_miles", "—"),
-            stats.get("moving_time", "—"),
-            stats.get("elevation_ft", "—"),
+            str(stats.get("runs") or stats.get("activities", "—")),
+            str(stats.get("total_miles") or stats.get("distance_miles", "—")),
+            stats.get("total_time") or stats.get("moving_time", "—"),
+            stats.get("avg_pace", "—"),
         ]
         for i, lbl in enumerate(labels):
             cell = table.rows[0].cells[i]
             cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-            _set_cell_shading(cell, "0A1F3D")
+            _set_cell_shading(cell, _hex(NAVY))
             p = cell.paragraphs[0]
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
             p.paragraph_format.space_after = Pt(2)
@@ -249,7 +314,8 @@ def render_strava(doc: Document, section: dict) -> None:
             for r in list(p.runs):
                 r.text = ""
             _styled_run(p, a["name"], bold=True, size=11)
-            detail = f" — {a.get('type','')} • {a.get('distance','')} • {a.get('time','')}"
+            dist = a.get("distance") or (f"{a['miles']} mi" if "miles" in a else "")
+            detail = f" — {a.get('date','')} • {dist} • {a.get('time','')} • {a.get('pace','')}"
             _styled_run(p, detail, size=11, color=MUTED_GRAY)
 
 
@@ -261,7 +327,7 @@ def render_devotional(doc: Document, section: dict) -> None:
     p.paragraph_format.right_indent = Inches(0.25)
     p.paragraph_format.space_before = Pt(4)
     p.paragraph_format.space_after = Pt(4)
-    _set_paragraph_border(p, position="left", color_hex="C8102E", sz=18)
+    _set_paragraph_border(p, position="left", color_hex=_hex(RED), sz=18)
     _styled_run(p, f"“{section['verse_text']}”", italic=True, size=12, color=BODY_GRAY)
     p2 = doc.add_paragraph()
     p2.paragraph_format.left_indent = Inches(0.25)
@@ -315,7 +381,7 @@ def render_recipe(doc: Document, section: dict) -> None:
         _styled_run(mp, " • ".join(meta_bits), italic=True, size=10, color=MUTED_GRAY)
     if section.get("intro"):
         _body_paragraph(doc, section["intro"])
-    _maybe_image(doc, section.get("image_path"), width_in=3.0, caption=section.get("image_caption"))
+    _maybe_image(doc, section.get("image_path"), max_height_in=1.5, caption=section.get("image_caption"))
 
     table = doc.add_table(rows=1, cols=2)
     table.autofit = True
@@ -344,7 +410,7 @@ def render_lifehack(doc: Document, section: dict) -> None:
     p = doc.add_paragraph()
     p.paragraph_format.space_after = Pt(4)
     _styled_run(p, section["hack_name"], bold=True, size=13, color=NAVY)
-    for para in section.get("paragraphs", []):
+    for para in (section.get("paragraphs") or section.get("body", [])):
         _body_paragraph(doc, para)
 
 
@@ -356,12 +422,36 @@ def render_flights(doc: Document, section: dict) -> None:
     if not items:
         _body_paragraph(doc, section.get("empty_message", "No abnormally low fares found this week — checking again next Monday."), italic=True)
         return
+    # Free-form format: route / window / deal / tip
+    if "route" in items[0]:
+        for item in items:
+            rp = doc.add_paragraph()
+            rp.paragraph_format.space_before = Pt(6)
+            rp.paragraph_format.space_after = Pt(1)
+            _styled_run(rp, item.get("route", ""), bold=True, size=12, color=NAVY)
+            if item.get("window"):
+                wp = doc.add_paragraph()
+                wp.paragraph_format.space_after = Pt(1)
+                _styled_run(wp, item["window"], italic=True, size=10, color=MUTED_GRAY)
+            if item.get("deal"):
+                _body_paragraph(doc, item["deal"])
+            if item.get("tip"):
+                tp = doc.add_paragraph()
+                tp.paragraph_format.space_after = Pt(4)
+                _styled_run(tp, "Tip: ", bold=True, size=10, color=NAVY)
+                _styled_run(tp, item["tip"], size=10, color=MUTED_GRAY)
+        if section.get("note"):
+            np = doc.add_paragraph()
+            np.paragraph_format.space_before = Pt(4)
+            _styled_run(np, section["note"], italic=True, size=10, color=MUTED_GRAY)
+        return
+    # Structured table format: origin / destination / depart / return_date / price / carrier
     table = doc.add_table(rows=len(items) + 1, cols=5)
     table.autofit = True
     headers = ["Route", "Depart", "Return", "Price", "Carrier"]
     for i, h in enumerate(headers):
         cell = table.rows[0].cells[i]
-        _set_cell_shading(cell, "0A1F3D")
+        _set_cell_shading(cell, _hex(NAVY))
         p = cell.paragraphs[0]
         p.paragraph_format.space_after = Pt(2)
         _styled_run(p, h.upper(), bold=True, size=9, color=WHITE)
@@ -402,7 +492,7 @@ def render_pentest(doc: Document, section: dict) -> None:
         table.autofit = True
         for i, h in enumerate(["IP", "Device", "Open Ports", "Notes"]):
             cell = table.rows[0].cells[i]
-            _set_cell_shading(cell, "0A1F3D")
+            _set_cell_shading(cell, _hex(NAVY))
             p = cell.paragraphs[0]
             p.paragraph_format.space_after = Pt(2)
             _styled_run(p, h.upper(), bold=True, size=9, color=WHITE)
@@ -444,7 +534,7 @@ def render_crossword(doc: Document, section: dict) -> None:
     if image_path:
         ip = Path(image_path)
         if not ip.is_absolute():
-            ip = ASSETS.parent / image_path
+            ip = Path(__file__).parent / image_path
         if ip.exists():
             pp = doc.add_paragraph()
             pp.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -486,7 +576,7 @@ def render_vehicle_listings(doc: Document, section: dict) -> None:
     table.autofit = True
     for i, h in enumerate(["Year", "Miles", "Price", "Location", "Source"]):
         cell = table.rows[0].cells[i]
-        _set_cell_shading(cell, "0A1F3D")
+        _set_cell_shading(cell, _hex(NAVY))
         p = cell.paragraphs[0]
         p.paragraph_format.space_after = Pt(2)
         _styled_run(p, h.upper(), bold=True, size=9, color=WHITE)
@@ -557,7 +647,17 @@ def render_concert_airbnb(doc: Document, section: dict) -> None:
 
 def render_alpaca_summary(doc: Document, section: dict) -> None:
     _section_heading(doc, section["title"], kicker=section.get("kicker"))
-    stats = section.get("stats", {})
+    raw = section.get("stats", {})
+    # Normalize both schema variants into display-ready strings
+    stats: dict = {}
+    eq = raw.get("portfolio_value") or raw.get("equity")
+    stats["portfolio_value"] = f"${eq:,.2f}" if isinstance(eq, (int, float)) else (str(eq) if eq else "—")
+    dc = raw.get("day_change", 0)
+    stats["day_change"] = f"{dc:+,.2f}" if isinstance(dc, (int, float)) else str(dc)
+    tr = raw.get("total_return") or raw.get("total_return_pct")
+    stats["total_return"] = f"{tr:+.2f}%" if isinstance(tr, (int, float)) else (str(tr) if tr else "—")
+    cash = raw.get("cash")
+    stats["cash"] = f"${cash:,.2f}" if isinstance(cash, (int, float)) else (str(cash) if cash else "—")
     if stats:
         table = doc.add_table(rows=2, cols=4)
         table.autofit = False
@@ -565,7 +665,7 @@ def render_alpaca_summary(doc: Document, section: dict) -> None:
         keys = ["portfolio_value", "day_change", "total_return", "cash"]
         for i, lbl in enumerate(labels):
             cell = table.rows[0].cells[i]
-            _set_cell_shading(cell, "0A1F3D")
+            _set_cell_shading(cell, _hex(NAVY))
             p = cell.paragraphs[0]
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
             p.paragraph_format.space_after = Pt(2)
@@ -595,7 +695,7 @@ def render_alpaca_summary(doc: Document, section: dict) -> None:
         table.autofit = True
         for i, h in enumerate(["Symbol", "Qty", "Avg Cost", "Market Value"]):
             cell = table.rows[0].cells[i]
-            _set_cell_shading(cell, "0A1F3D")
+            _set_cell_shading(cell, _hex(NAVY))
             p = cell.paragraphs[0]
             p.paragraph_format.space_after = Pt(2)
             _styled_run(p, h.upper(), bold=True, size=9, color=WHITE)
@@ -647,7 +747,7 @@ def render_title_page(doc: Document, content: dict) -> None:
     title_p = doc.add_paragraph()
     title_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     title_p.paragraph_format.space_after = Pt(8)
-    _styled_run(title_p, "JACOB'S GAZETTE", bold=True, size=44, color=NAVY)
+    _styled_run(title_p, TITLE_TEXT, bold=True, size=44, color=NAVY)
     sub = doc.add_paragraph()
     sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
     sub.paragraph_format.space_after = Pt(20)
@@ -670,7 +770,7 @@ def render_toc(doc: Document, content: dict) -> None:
     h.paragraph_format.space_before = Pt(12)
     h.paragraph_format.space_after = Pt(10)
     _styled_run(h, "Table of Contents", bold=True, size=26, color=NAVY)
-    _set_paragraph_border(h, position="bottom", color_hex="C8102E", sz=18)
+    _set_paragraph_border(h, position="bottom", color_hex=_hex(RED), sz=18)
 
     sections = content.get("sections", [])
     for idx, s in enumerate(sections):
@@ -716,12 +816,12 @@ def _build_header(doc: Document, issue_label: str) -> None:
     tagline.paragraph_format.space_after = Pt(0)
     _styled_run(
         tagline,
-        f"A WEEKLY BRIEF  •  {issue_label.upper()}",
+        f"{SUBTITLE_TEXT}  •  {issue_label.upper()}",
         bold=True,
         size=9,
         color=NAVY,
     )
-    _set_paragraph_border(tagline, position="bottom", color_hex="C8102E", sz=18)
+    _set_paragraph_border(tagline, position="bottom", color_hex=_hex(RED), sz=18)
 
 
 def _build_footer(doc: Document) -> None:
@@ -730,7 +830,7 @@ def _build_footer(doc: Document) -> None:
     footer.is_linked_to_previous = False
     p = footer.paragraphs[0]
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    _styled_run(p, "Jacob's Gazette  •  Page ", size=9, color=MUTED_GRAY)
+    _styled_run(p, f"{FOOTER_TEXT}  •  Page ", size=9, color=MUTED_GRAY)
 
     # Page number field
     fld_char1 = OxmlElement("w:fldChar")
@@ -759,9 +859,11 @@ def _set_margins(doc: Document) -> None:
         section.footer_distance = Inches(0.3)
 
 
-def _set_page_borders(doc: Document, color_hex: str = "0A1F3D", sz: int = 18) -> None:
+def _set_page_borders(doc: Document, color_hex: str | None = None, sz: int = 18) -> None:
     """Add a uniform border around every page. sz is in eighths of a point
     (18 ≈ 2.25pt). offsetFrom='page' anchors the border to the page edge."""
+    if color_hex is None:
+        color_hex = _hex(NAVY)
     for section in doc.sections:
         sect_pr = section._sectPr
         # Remove any existing pgBorders so this is the source of truth
@@ -788,6 +890,7 @@ RENDERERS = {
     "strava": render_strava,
     "devotional": render_devotional,
     "chess": render_chess,
+    "chess_opening": render_chess,
     "recipe": render_recipe,
     "lifehack": render_lifehack,
     "flights": render_flights,
@@ -796,6 +899,7 @@ RENDERERS = {
     "vehicle_listings": render_vehicle_listings,
     "concert_airbnb": render_concert_airbnb,
     "alpaca_summary": render_alpaca_summary,
+    "alpaca_paper": render_alpaca_summary,
 }
 
 
@@ -838,15 +942,25 @@ def build_newsletter(content: dict, output_path: Path) -> None:
 
 
 def main() -> None:
-    if len(sys.argv) < 3:
-        print("Usage: render.py <content.json> <output.docx>", file=sys.stderr)
-        sys.exit(1)
-    content_path = Path(sys.argv[1])
-    output_path = Path(sys.argv[2])
-    content = json.loads(content_path.read_text())
+    parser = argparse.ArgumentParser(description="Render newsletter .docx from content + optional client config")
+    parser.add_argument("content", help="Path to content.json")
+    parser.add_argument("output", help="Path to output .docx")
+    parser.add_argument("--config", help="Path to client config.yaml (optional; defaults to Jacob's Gazette branding)")
+    args = parser.parse_args()
+
+    config = None
+    if args.config:
+        if yaml is None:
+            print("ERROR: --config requires PyYAML. Run: pip install pyyaml", file=sys.stderr)
+            sys.exit(2)
+        config = yaml.safe_load(Path(args.config).read_text())
+    apply_config(config)
+
+    content = json.loads(Path(args.content).read_text())
+    output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     build_newsletter(content, output_path)
-    print(f"Wrote {output_path}")
+    print(f"Wrote {output_path} (title={TITLE_TEXT}, primary=#{_hex(NAVY)}, accent=#{_hex(RED)})")
 
 
 if __name__ == "__main__":
